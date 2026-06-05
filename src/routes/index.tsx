@@ -55,6 +55,18 @@ function CategoryPage() {
   const [tapProduct, setTapProduct] = useState<Product | null>(null);
   const [tapOpen, setTapOpen] = useState(false);
   const isDesktop = useIsDesktop();
+  const hoverCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const scheduleClose = () => {
+    if (hoverCloseTimer.current) clearTimeout(hoverCloseTimer.current);
+    hoverCloseTimer.current = setTimeout(() => setHover(null), 120);
+  };
+  const cancelClose = () => {
+    if (hoverCloseTimer.current) {
+      clearTimeout(hoverCloseTimer.current);
+      hoverCloseTimer.current = null;
+    }
+  };
 
   const sorted = useMemo(() => {
     const list = [...allProducts];
