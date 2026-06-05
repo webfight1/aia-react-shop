@@ -147,9 +147,10 @@ function CategoryPage() {
                     onAdd={addToCart}
                     onHover={(prod, el) => {
                       if (!isDesktop) return;
+                      cancelClose();
                       setHover({ product: prod, rect: el.getBoundingClientRect() });
                     }}
-                    onLeave={() => isDesktop && setHover(null)}
+                    onLeave={() => isDesktop && scheduleClose()}
                     onTap={(prod) => {
                       if (isDesktop) return;
                       setTapProduct(prod);
@@ -177,6 +178,8 @@ function CategoryPage() {
           product={hover.product}
           anchorRect={hover.rect}
           onAdd={addToCart}
+          onMouseEnter={cancelClose}
+          onMouseLeave={scheduleClose}
         />
       )}
 
