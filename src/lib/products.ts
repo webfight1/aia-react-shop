@@ -38,5 +38,5 @@ export const specialOffer = {
   amount: "20 seemet",
   oldPrice: 3.25,
   newPrice: 1.95,
-  image: "https://picsum.photos/seed/tomat-tigerella/400/400",
+  image: "https://picsum.photos/seed/ripe-tomato/400/400",
 };
