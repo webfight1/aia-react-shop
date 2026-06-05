@@ -17,7 +17,7 @@ export function ProductQuickViewPopover({ product, anchorRect, onAdd }: DesktopP
     return () => cancelAnimationFrame(id);
   }, [product.id]);
 
-  const width = 460;
+  const width = 760;
   const margin = 16;
   let left = anchorRect.right + 12;
   if (left + width > window.innerWidth - margin) {
@@ -26,7 +26,7 @@ export function ProductQuickViewPopover({ product, anchorRect, onAdd }: DesktopP
   if (left < margin) left = margin;
 
   let top = anchorRect.top;
-  const estHeight = 260;
+  const estHeight = 520;
   if (top + estHeight > window.innerHeight - margin) {
     top = Math.max(margin, window.innerHeight - estHeight - margin);
   }
