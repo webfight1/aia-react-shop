@@ -56,7 +56,7 @@ export function ProductQuickViewPopover({ product, anchorRect, onAdd, onMouseEnt
           <p className="mt-3 text-sm text-muted-foreground leading-relaxed line-clamp-[8]">
             {product.description}
           </p>
-          <div className="mt-auto pt-5 flex items-center justify-between gap-3 pointer-events-auto">
+          <div className="mt-auto pt-5 flex items-center justify-between gap-3">
             <div>
               <div className="text-xs text-muted-foreground">{product.amount}</div>
               <div className="text-xl font-bold text-foreground">
