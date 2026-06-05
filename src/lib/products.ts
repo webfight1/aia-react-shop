@@ -10,9 +10,6 @@ export interface Product {
 const img = (seed: string) =>
   `https://images.unsplash.com/photo-${seed}?auto=format&fit=crop&w=400&q=70`;
 
-const fallback = (seed: string) =>
-  `https://picsum.photos/seed/${seed}/400/400`;
-
 export const products: Product[] = [
   { id: "p1", name: "AEDHERNES 'Meduza'", amount: "30 grammi", price: 1.85, image: img("1518977676601-b53f82aba655"), description: "Magus ja mahlane suhkruhernes, sobib hästi värskelt söömiseks ja külmutamiseks. Varajane sort, kõrge saagikusega." },
   { id: "p2", name: "TOMAT 'Oxheart Orange'", amount: "0,1 grammi", price: 2.95, image: img("1592924357228-91a4daadcfea"), description: "Suur oranž härjasüdame-tüüpi tomat, lihav ja vähese seemnesisaldusega. Suurepärane maitse salatites." },
