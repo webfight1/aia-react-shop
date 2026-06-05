@@ -44,15 +44,15 @@ export function ProductQuickViewPopover({ product, anchorRect, onAdd }: DesktopP
       }}
       className="z-50 rounded-2xl border border-border bg-popover shadow-2xl pointer-events-none"
     >
-      <div className="grid grid-cols-[1fr_180px] gap-4 p-5">
-        <div className="min-w-0">
+      <div className="grid grid-cols-[1fr_360px] gap-5 p-6">
+        <div className="min-w-0 flex flex-col">
           <h3 className="text-lg font-semibold text-foreground leading-tight">
             {product.name}
           </h3>
-          <p className="mt-2 text-sm text-muted-foreground leading-relaxed line-clamp-5">
+          <p className="mt-3 text-sm text-muted-foreground leading-relaxed line-clamp-[8]">
             {product.description}
           </p>
-          <div className="mt-4 flex items-center justify-between gap-3 pointer-events-auto">
+          <div className="mt-auto pt-5 flex items-center justify-between gap-3 pointer-events-auto">
             <div>
               <div className="text-xs text-muted-foreground">{product.amount}</div>
               <div className="text-xl font-bold text-foreground">
@@ -64,7 +64,7 @@ export function ProductQuickViewPopover({ product, anchorRect, onAdd }: DesktopP
             </Button>
           </div>
         </div>
-        <div className="h-44 w-full rounded-xl overflow-hidden bg-muted ring-1 ring-border">
+        <div className="h-88 w-full rounded-xl overflow-hidden bg-muted ring-1 ring-border">
           <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
         </div>
       </div>
