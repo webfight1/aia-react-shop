@@ -8,9 +8,11 @@ interface DesktopProps {
   product: Product;
   anchorRect: DOMRect;
   onAdd: (p: Product) => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 }
 
-export function ProductQuickViewPopover({ product, anchorRect, onAdd }: DesktopProps) {
+export function ProductQuickViewPopover({ product, anchorRect, onAdd, onMouseEnter, onMouseLeave }: DesktopProps) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     const id = requestAnimationFrame(() => setMounted(true));
@@ -33,6 +35,8 @@ export function ProductQuickViewPopover({ product, anchorRect, onAdd }: DesktopP
 
   return (
     <div
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       style={{
         position: "fixed",
         top,
@@ -42,7 +46,7 @@ export function ProductQuickViewPopover({ product, anchorRect, onAdd }: DesktopP
         transform: mounted ? "scale(1)" : "scale(0.96)",
         transition: "opacity 180ms ease, transform 180ms ease",
       }}
-      className="z-50 rounded-2xl border border-border bg-popover shadow-2xl pointer-events-none"
+      className="z-50 rounded-2xl border border-border bg-popover shadow-2xl"
     >
       <div className="grid grid-cols-[1fr_360px] gap-5 p-6">
         <div className="min-w-0 flex flex-col">
@@ -52,7 +56,7 @@ export function ProductQuickViewPopover({ product, anchorRect, onAdd }: DesktopP
           <p className="mt-3 text-sm text-muted-foreground leading-relaxed line-clamp-[8]">
             {product.description}
           </p>
-          <div className="mt-auto pt-5 flex items-center justify-between gap-3 pointer-events-auto">
+          <div className="mt-auto pt-5 flex items-center justify-between gap-3">
             <div>
               <div className="text-xs text-muted-foreground">{product.amount}</div>
               <div className="text-xl font-bold text-foreground">

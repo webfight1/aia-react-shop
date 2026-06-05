@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronRight, Home } from "lucide-react";
 import {
   Select,
@@ -55,6 +55,18 @@ function CategoryPage() {
   const [tapProduct, setTapProduct] = useState<Product | null>(null);
   const [tapOpen, setTapOpen] = useState(false);
   const isDesktop = useIsDesktop();
+  const hoverCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const scheduleClose = () => {
+    if (hoverCloseTimer.current) clearTimeout(hoverCloseTimer.current);
+    hoverCloseTimer.current = setTimeout(() => setHover(null), 120);
+  };
+  const cancelClose = () => {
+    if (hoverCloseTimer.current) {
+      clearTimeout(hoverCloseTimer.current);
+      hoverCloseTimer.current = null;
+    }
+  };
 
   const sorted = useMemo(() => {
     const list = [...allProducts];
@@ -135,9 +147,10 @@ function CategoryPage() {
                     onAdd={addToCart}
                     onHover={(prod, el) => {
                       if (!isDesktop) return;
+                      cancelClose();
                       setHover({ product: prod, rect: el.getBoundingClientRect() });
                     }}
-                    onLeave={() => isDesktop && setHover(null)}
+                    onLeave={() => isDesktop && scheduleClose()}
                     onTap={(prod) => {
                       if (isDesktop) return;
                       setTapProduct(prod);
@@ -165,6 +178,8 @@ function CategoryPage() {
           product={hover.product}
           anchorRect={hover.rect}
           onAdd={addToCart}
+          onMouseEnter={cancelClose}
+          onMouseLeave={scheduleClose}
         />
       )}
 
