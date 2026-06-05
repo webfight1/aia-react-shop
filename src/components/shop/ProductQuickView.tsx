@@ -21,11 +21,7 @@ export function ProductQuickViewPopover({ product, anchorRect, onAdd, onMouseEnt
 
   const width = 760;
   const margin = 16;
-  let left = anchorRect.right + 12;
-  if (left + width > window.innerWidth - margin) {
-    left = anchorRect.left - width - 12;
-  }
-  if (left < margin) left = margin;
+  const left = Math.max(margin, window.innerWidth - width - margin);
 
   let top = anchorRect.top;
   const estHeight = 520;
