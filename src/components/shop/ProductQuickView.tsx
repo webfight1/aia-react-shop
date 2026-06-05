@@ -64,7 +64,7 @@ export function ProductQuickViewPopover({ product, anchorRect, onAdd }: DesktopP
             </Button>
           </div>
         </div>
-        <div className="h-88 w-full rounded-xl overflow-hidden bg-muted ring-1 ring-border">
+        <div className="w-full rounded-xl overflow-hidden bg-muted ring-1 ring-border" style={{ height: 352 }}>
           <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
         </div>
       </div>
