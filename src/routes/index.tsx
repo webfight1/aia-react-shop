@@ -146,7 +146,17 @@ function CategoryPage() {
               </div>
 
               <div>
-                {sorted.map((p, i) => (
+                {isLoading && (
+                  <div className="p-8 text-center text-sm text-muted-foreground">
+                    Laen tooteid…
+                  </div>
+                )}
+                {isError && (
+                  <div className="p-8 text-center text-sm text-destructive">
+                    Toodete laadimine ebaõnnestus. Palun proovi hiljem uuesti.
+                  </div>
+                )}
+                {!isLoading && !isError && sorted.map((p, i) => (
                   <ProductRow
                     key={p.id}
                     product={p}
@@ -166,6 +176,7 @@ function CategoryPage() {
                   />
                 ))}
               </div>
+
             </section>
 
             {/* Right: sidebar */}
