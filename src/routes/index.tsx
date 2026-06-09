@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronRight, Home } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import {
   Select,
   SelectContent,
@@ -18,7 +19,7 @@ import {
 import { CartSidebar, type CartItem } from "@/components/shop/CartSidebar";
 import { SpecialOffer } from "@/components/shop/SpecialOffer";
 import { Footer } from "@/components/shop/Footer";
-import { products as allProducts, type Product } from "@/lib/products";
+import { fetchProducts, type Product } from "@/lib/products";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -68,13 +69,19 @@ function CategoryPage() {
     }
   };
 
+  const { data: allProducts = [], isLoading, isError } = useQuery({
+    queryKey: ["products"],
+    queryFn: fetchProducts,
+    staleTime: 60_000,
+  });
+
   const sorted = useMemo(() => {
     const list = [...allProducts];
     if (sort === "price-asc") list.sort((a, b) => a.price - b.price);
     if (sort === "price-desc") list.sort((a, b) => b.price - a.price);
     if (sort === "name") list.sort((a, b) => a.name.localeCompare(b.name, "et"));
     return list;
-  }, [sort]);
+  }, [sort, allProducts]);
 
   const addToCart = (p: Product) => {
     setCart((prev) => {
@@ -139,7 +146,17 @@ function CategoryPage() {
               </div>
 
               <div>
-                {sorted.map((p, i) => (
+                {isLoading && (
+                  <div className="p-8 text-center text-sm text-muted-foreground">
+                    Laen tooteid…
+                  </div>
+                )}
+                {isError && (
+                  <div className="p-8 text-center text-sm text-destructive">
+                    Toodete laadimine ebaõnnestus. Palun proovi hiljem uuesti.
+                  </div>
+                )}
+                {!isLoading && !isError && sorted.map((p, i) => (
                   <ProductRow
                     key={p.id}
                     product={p}
@@ -159,6 +176,7 @@ function CategoryPage() {
                   />
                 ))}
               </div>
+
             </section>
 
             {/* Right: sidebar */}
