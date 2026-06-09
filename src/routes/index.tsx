@@ -69,13 +69,19 @@ function CategoryPage() {
     }
   };
 
+  const { data: allProducts = [], isLoading, isError } = useQuery({
+    queryKey: ["products"],
+    queryFn: fetchProducts,
+    staleTime: 60_000,
+  });
+
   const sorted = useMemo(() => {
     const list = [...allProducts];
     if (sort === "price-asc") list.sort((a, b) => a.price - b.price);
     if (sort === "price-desc") list.sort((a, b) => b.price - a.price);
     if (sort === "name") list.sort((a, b) => a.name.localeCompare(b.name, "et"));
     return list;
-  }, [sort]);
+  }, [sort, allProducts]);
 
   const addToCart = (p: Product) => {
     setCart((prev) => {
