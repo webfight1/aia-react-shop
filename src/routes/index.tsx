@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronRight, Home } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import {
   Select,
   SelectContent,
@@ -18,7 +19,7 @@ import {
 import { CartSidebar, type CartItem } from "@/components/shop/CartSidebar";
 import { SpecialOffer } from "@/components/shop/SpecialOffer";
 import { Footer } from "@/components/shop/Footer";
-import { products as allProducts, type Product } from "@/lib/products";
+import { fetchProducts, type Product } from "@/lib/products";
 
 export const Route = createFileRoute("/")({
   head: () => ({
