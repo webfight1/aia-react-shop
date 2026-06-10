@@ -53,7 +53,7 @@ export function Nav({ onSelectCategory, selectedSlug }: Props) {
             </button>
             {tree.length > 0 && (
               <div className="absolute left-0 top-full z-40 hidden group-hover/cat:block pt-1">
-                <div className="min-w-[260px] rounded-xl border border-border bg-popover shadow-lg overflow-hidden">
+                <div className="min-w-[260px] rounded-xl border border-border bg-popover shadow-lg">
                   <ul className="py-1">
                     {tree.map((node) => (
                       <CategoryItem
@@ -117,7 +117,7 @@ function CategoryItem({
 
       {hasChildren && open && (
         <div className="absolute left-full top-0 z-50 pl-1">
-          <div className="min-w-[240px] rounded-xl border border-border bg-popover shadow-lg overflow-hidden">
+          <div className="min-w-[240px] rounded-xl border border-border bg-popover shadow-lg">
             <ul className="py-1">
               {node.children.map((child) => (
                 <CategoryItem
