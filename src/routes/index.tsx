@@ -104,7 +104,10 @@ function CategoryPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header cartCount={cartCount} cartTotal={cartSubtotal + (cart.length ? SHIPPING : 0)} />
-      <Nav />
+      <Nav
+        onSelectCategory={(slug, name) => setCategory({ slug, name })}
+        selectedSlug={category.slug}
+      />
 
       <main className="flex-1">
         <div className="mx-auto max-w-7xl px-4 md:px-6 py-6">
@@ -113,18 +116,14 @@ function CategoryPage() {
             <Home className="h-3.5 w-3.5" />
             <a href="#" className="hover:text-primary">Avaleht</a>
             <ChevronRight className="h-3.5 w-3.5" />
-            <span className="text-foreground font-medium">UUED SEEMNED 2025/26</span>
+            <span className="text-foreground font-medium uppercase">{category.name}</span>
           </nav>
 
           {/* Title */}
           <div className="mb-6 max-w-3xl">
             <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
-              Uued seemned <span className="text-primary">2025/26</span>
+              {category.name}
             </h1>
-            <p className="mt-2 text-sm md:text-base text-muted-foreground">
-              Mõned sordid siin on uued ja mõned vanad teada-tuntud, kuid meie valikus uued.
-              Vali endale lemmikud ja alusta hooaega õigesti.
-            </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
