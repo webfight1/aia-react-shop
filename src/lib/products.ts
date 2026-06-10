@@ -14,6 +14,7 @@ export interface ApiProduct {
   price: string;
   special_price: string | null;
   url_key: string;
+  short_description?: string | null;
   image: string;
 }
 
@@ -23,18 +24,35 @@ const FALLBACK_IMG = "https://picsum.photos/seed/produkt/400/400";
 
 export const DEFAULT_CATEGORY_SLUG = "uued-seemned-202526";
 
+function htmlToText(html: string): string {
+  return html
+    .replace(/<\s*br\s*\/?>/gi, "\n")
+    .replace(/<\/\s*p\s*>/gi, "\n\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 export function mapApiProduct(p: ApiProduct): Product {
   const priceStr = p.special_price ?? p.price;
   const price = parseFloat(priceStr) || 0;
   const image = p.image ? `${API_BASE}${p.image}` : FALLBACK_IMG;
+  const description = p.short_description
+    ? htmlToText(p.short_description)
+    : "Toote kirjeldus ei ole hetkel saadaval.";
   return {
     id: String(p.id),
     name: p.name,
     amount: "1 tk",
     price,
     image,
-    description:
-      "Toote kirjeldus ei ole hetkel saadaval. Võta ühendust, kui soovid lisainfot selle toote kohta.",
+    description,
   };
 }
 
