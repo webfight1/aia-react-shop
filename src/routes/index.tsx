@@ -69,9 +69,14 @@ function CategoryPage() {
     }
   };
 
+  const [category, setCategory] = useState<{ slug: string; name: string }>({
+    slug: "uued-seemned-202526",
+    name: "UUED SEEMNED 2025/26",
+  });
+
   const { data: allProducts = [], isLoading, isError } = useQuery({
-    queryKey: ["products"],
-    queryFn: fetchProducts,
+    queryKey: ["products", category.slug],
+    queryFn: () => fetchProducts(category.slug),
     staleTime: 60_000,
   });
 
