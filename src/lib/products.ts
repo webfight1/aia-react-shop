@@ -18,9 +18,10 @@ export interface ApiProduct {
 }
 
 const API_BASE = "https://aiamaailm.webfight.shop";
-const API_URL = `${API_BASE}/api/v1/category/root`;
 
 const FALLBACK_IMG = "https://picsum.photos/seed/produkt/400/400";
+
+export const DEFAULT_CATEGORY_SLUG = "uued-seemned-202526";
 
 export function mapApiProduct(p: ApiProduct): Product {
   const priceStr = p.special_price ?? p.price;
@@ -37,8 +38,9 @@ export function mapApiProduct(p: ApiProduct): Product {
   };
 }
 
-export async function fetchProducts(): Promise<Product[]> {
-  const res = await fetch(API_URL);
+export async function fetchProducts(slug: string = DEFAULT_CATEGORY_SLUG): Promise<Product[]> {
+  const url = `${API_BASE}/api/v1/category/${encodeURIComponent(slug)}?width=400&height=400&format=webp`;
+  const res = await fetch(url);
   if (!res.ok) throw new Error(`Failed to fetch products: ${res.status}`);
   const data: ApiProduct[] = await res.json();
   return data.map(mapApiProduct);
