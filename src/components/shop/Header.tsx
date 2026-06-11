@@ -1,13 +1,19 @@
 import { Search, ShoppingCart, User, LogIn } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useCart } from "@/hooks/useCart";
 
 interface HeaderProps {
-  cartCount: number;
-  cartTotal: number;
+  cartCount?: number;
+  cartTotal?: number;
 }
 
-export function Header({ cartCount, cartTotal }: HeaderProps) {
+const SHIPPING = 1.79;
+
+export function Header({ cartCount: cartCountProp, cartTotal: cartTotalProp }: HeaderProps = {}) {
+  const { itemsCount, subtotal, items } = useCart();
+  const cartCount = cartCountProp ?? itemsCount;
+  const cartTotal = cartTotalProp ?? (Number(subtotal) || 0) + (items.length ? SHIPPING : 0);
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="mx-auto flex max-w-7xl items-center gap-6 px-4 py-3 md:px-6">
