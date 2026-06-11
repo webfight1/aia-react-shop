@@ -121,6 +121,8 @@ function CheckoutPage() {
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [shippingMethod, setShippingMethod] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState<string>("");
+  const [selectedLocker, setSelectedLocker] = useState<ParcelLocker | null>(null);
+  const [lockerQuery, setLockerQuery] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const shippingQuery = useQuery({
