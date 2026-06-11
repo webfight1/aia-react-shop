@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import {
   buildTree,
   fetchCategories,
@@ -8,7 +9,7 @@ import {
 } from "@/lib/categories";
 
 interface Props {
-  onSelectCategory: (slug: string, name: string) => void;
+  onSelectCategory?: (slug: string, name: string) => void;
   selectedSlug?: string;
 }
 
@@ -22,11 +23,20 @@ const staticItems = [
 ];
 
 export function Nav({ onSelectCategory, selectedSlug }: Props) {
+  const navigate = useNavigate();
   const { data: categories = [] } = useQuery({
     queryKey: ["categories"],
     queryFn: fetchCategories,
     staleTime: 5 * 60_000,
   });
+
+  const handleSelect = (slug: string, name: string) => {
+    if (onSelectCategory) {
+      onSelectCategory(slug, name);
+    } else {
+      navigate({ to: "/pood", search: { cat: slug, name } });
+    }
+  };
 
   const tree = buildTree(categories);
 
@@ -59,7 +69,7 @@ export function Nav({ onSelectCategory, selectedSlug }: Props) {
                       <CategoryItem
                         key={node.id}
                         node={node}
-                        onSelect={onSelectCategory}
+                        onSelect={handleSelect}
                         selectedSlug={selectedSlug}
                       />
                     ))}
