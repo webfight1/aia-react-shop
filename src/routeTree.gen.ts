@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PoodRouteImport } from './routes/pood'
+import { Route as FirmastRouteImport } from './routes/firmast'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ToodeUrlKeyRouteImport } from './routes/toode.$urlKey'
 
 const PoodRoute = PoodRouteImport.update({
   id: '/pood',
   path: '/pood',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FirmastRoute = FirmastRouteImport.update({
+  id: '/firmast',
+  path: '/firmast',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -31,30 +37,34 @@ const ToodeUrlKeyRoute = ToodeUrlKeyRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/firmast': typeof FirmastRoute
   '/pood': typeof PoodRoute
   '/toode/$urlKey': typeof ToodeUrlKeyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/firmast': typeof FirmastRoute
   '/pood': typeof PoodRoute
   '/toode/$urlKey': typeof ToodeUrlKeyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/firmast': typeof FirmastRoute
   '/pood': typeof PoodRoute
   '/toode/$urlKey': typeof ToodeUrlKeyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/pood' | '/toode/$urlKey'
+  fullPaths: '/' | '/firmast' | '/pood' | '/toode/$urlKey'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/pood' | '/toode/$urlKey'
-  id: '__root__' | '/' | '/pood' | '/toode/$urlKey'
+  to: '/' | '/firmast' | '/pood' | '/toode/$urlKey'
+  id: '__root__' | '/' | '/firmast' | '/pood' | '/toode/$urlKey'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  FirmastRoute: typeof FirmastRoute
   PoodRoute: typeof PoodRoute
   ToodeUrlKeyRoute: typeof ToodeUrlKeyRoute
 }
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/pood'
       fullPath: '/pood'
       preLoaderRoute: typeof PoodRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/firmast': {
+      id: '/firmast'
+      path: '/firmast'
+      fullPath: '/firmast'
+      preLoaderRoute: typeof FirmastRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -87,6 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  FirmastRoute: FirmastRoute,
   PoodRoute: PoodRoute,
   ToodeUrlKeyRoute: ToodeUrlKeyRoute,
 }
