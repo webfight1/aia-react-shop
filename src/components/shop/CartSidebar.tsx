@@ -11,7 +11,8 @@ interface Props {
 }
 
 export function CartSidebar({ items, shipping, subtotal, onRemove, isRemoving }: Props) {
-  const total = subtotal + (items.length ? shipping : 0);
+  const sub = Number(subtotal) || 0;
+  const total = sub + (items.length ? shipping : 0);
 
   return (
     <aside className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
