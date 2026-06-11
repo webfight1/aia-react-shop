@@ -111,15 +111,22 @@ export function ProductQuickViewModal({ product, open, onOpenChange, onAdd }: Mo
                 {product.price.toFixed(2).replace(".", ",")} €
               </div>
             </div>
-            <Button
-              onClick={() => {
-                onAdd(product);
-                onOpenChange(false);
-              }}
-              className="rounded-lg"
-            >
-              <Plus className="h-4 w-4" /> Lisa tellimusse
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button asChild variant="outline" className="rounded-lg">
+                <Link to="/toode/$urlKey" params={{ urlKey: product.url_key }} onClick={() => onOpenChange(false)}>
+                  Vaata
+                </Link>
+              </Button>
+              <Button
+                onClick={() => {
+                  onAdd(product);
+                  onOpenChange(false);
+                }}
+                className="rounded-lg"
+              >
+                <Plus className="h-4 w-4" /> Lisa
+              </Button>
+            </div>
           </div>
         </div>
       </DialogContent>
