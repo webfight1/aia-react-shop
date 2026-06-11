@@ -88,7 +88,9 @@ function fmt(n: number) {
 }
 
 function toAddress(f: FormState, hasCompany: boolean): CheckoutAddress {
-  // Bagisto eeldab address/city/postcode välju — ilma ettevõtteta saadame placeholderid.
+  // Bagisto eeldab address/city/postcode/state välju — ilma ettevõtteta saadame placeholderid.
+  const country = (f.country.trim() || "EE").toUpperCase();
+  const stateRaw = hasCompany ? f.state.trim() : "";
   return {
     first_name: f.first_name.trim(),
     last_name: f.last_name.trim(),
@@ -97,8 +99,8 @@ function toAddress(f: FormState, hasCompany: boolean): CheckoutAddress {
     address: [hasCompany ? f.address.trim() : "-"],
     city: hasCompany ? f.city.trim() : "-",
     postcode: hasCompany ? f.postcode.trim() : "00000",
-    state: hasCompany ? f.state.trim() : "",
-    country: (f.country.trim() || "EE").toUpperCase(),
+    state: stateRaw || (country === "EE" ? "Harju maakond" : "-"),
+    country,
     company_name: f.company_name.trim(),
     vat_id: "",
   };
