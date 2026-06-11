@@ -1,4 +1,4 @@
-import { X, ShoppingBag, Loader2 } from "lucide-react";
+import { X, ShoppingBag, Loader2, ImageOff } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { cartItemImage, type BagistoCartItem } from "@/lib/cart";
@@ -35,13 +35,27 @@ export function CartSidebar({ items, shipping, subtotal, onRemove, isRemoving }:
               const img = cartItemImage(item);
               return (
                 <li key={item.id} className="flex items-center gap-3 px-4 py-3 text-sm">
-                  {img && (
+                  {img ? (
                     <img
                       src={img}
                       alt={item.name}
+                      loading="lazy"
+                      onError={(e) => {
+                        const el = e.currentTarget;
+                        el.style.display = "none";
+                        const fb = el.nextElementSibling as HTMLElement | null;
+                        if (fb) fb.style.display = "flex";
+                      }}
                       className="h-10 w-10 rounded-md object-cover ring-1 ring-border shrink-0"
                     />
-                  )}
+                  ) : null}
+                  <div
+                    className="h-10 w-10 rounded-md ring-1 ring-border shrink-0 bg-muted items-center justify-center text-muted-foreground"
+                    style={{ display: img ? "none" : "flex" }}
+                    aria-hidden="true"
+                  >
+                    <ImageOff className="h-4 w-4" />
+                  </div>
                   <div className="flex-1 min-w-0">
                     <div className="truncate text-foreground">
                       {item.quantity > 1 && (

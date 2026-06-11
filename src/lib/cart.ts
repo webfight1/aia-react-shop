@@ -27,6 +27,15 @@ export function clearCartToken() {
   setToken(null);
 }
 
+export interface BagistoImage {
+  small_image_url?: string;
+  medium_image_url?: string;
+  large_image_url?: string;
+  original_image_url?: string;
+  url?: string;
+  path?: string;
+}
+
 export interface BagistoCartItem {
   id: number;
   product_id: number;
@@ -42,16 +51,16 @@ export interface BagistoCartItem {
   formatted_total?: string;
   product?: {
     url_key?: string;
-    base_image?: {
-      small_image_url?: string;
-      medium_image_url?: string;
-      large_image_url?: string;
-    };
+    base_image?: BagistoImage;
+    images?: BagistoImage[];
   };
   // Some Bagisto versions expose images at top level
-  base_image?: {
-    small_image_url?: string;
-    medium_image_url?: string;
+  base_image?: BagistoImage;
+  images?: BagistoImage[];
+  additional?: {
+    product?: {
+      base_image?: BagistoImage;
+    };
   };
 }
 
@@ -152,15 +161,30 @@ export async function removeCartItem(cartItemId: number): Promise<BagistoCart | 
   return res.data?.cart ?? null;
 }
 
+function pickImageUrl(img?: BagistoImage): string {
+  if (!img) return "";
+  return (
+    img.small_image_url ||
+    img.medium_image_url ||
+    img.large_image_url ||
+    img.original_image_url ||
+    img.url ||
+    img.path ||
+    ""
+  );
+}
+
 export function cartItemImage(item: BagistoCartItem): string {
   const img =
-    item.product?.base_image?.small_image_url ||
-    item.product?.base_image?.medium_image_url ||
-    item.base_image?.small_image_url ||
-    item.base_image?.medium_image_url ||
+    pickImageUrl(item.product?.base_image) ||
+    pickImageUrl(item.product?.images?.[0]) ||
+    pickImageUrl(item.base_image) ||
+    pickImageUrl(item.images?.[0]) ||
+    pickImageUrl(item.additional?.product?.base_image) ||
     "";
   if (!img) return "";
-  return img.startsWith("http") ? img : `${API_BASE}${img}`;
+  if (img.startsWith("http") || img.startsWith("data:")) return img;
+  return `${API_BASE}${img.startsWith("/") ? "" : "/"}${img}`;
 }
 
 // ---------- Checkout ----------
