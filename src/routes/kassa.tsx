@@ -13,6 +13,8 @@ import { useCart } from "@/hooks/useCart";
 import {
   CartApiError,
   clearCartToken,
+  detectParcelCarrier,
+  getParcelLockers,
   getPaymentMethods,
   getShippingMethods,
   placeOrder,
@@ -20,6 +22,8 @@ import {
   savePaymentMethod,
   saveShippingMethod,
   type CheckoutAddress,
+  type ParcelCarrier,
+  type ParcelLocker,
   type ShippingRate,
 } from "@/lib/cart";
 
@@ -117,6 +121,8 @@ function CheckoutPage() {
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [shippingMethod, setShippingMethod] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState<string>("");
+  const [selectedLocker, setSelectedLocker] = useState<ParcelLocker | null>(null);
+  const [lockerQuery, setLockerQuery] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const shippingQuery = useQuery({
@@ -142,6 +148,34 @@ function CheckoutPage() {
   const selectedRate = shippingRates.find((r) => r.method === shippingMethod);
   const shippingCost = Number(selectedRate?.price) || 0;
   const total = sub + shippingCost;
+
+  const carrier: ParcelCarrier | null = shippingMethod ? detectParcelCarrier(shippingMethod) : null;
+  const lockersQuery = useQuery({
+    queryKey: ["parcel-lockers", carrier],
+    queryFn: () => getParcelLockers(carrier as ParcelCarrier),
+    enabled: !!carrier,
+    staleTime: 6 * 60 * 60 * 1000,
+  });
+
+  useEffect(() => {
+    setSelectedLocker(null);
+    setLockerQuery("");
+  }, [shippingMethod]);
+
+  const filteredLockers = useMemo(() => {
+    const all = lockersQuery.data ?? [];
+    const q = lockerQuery.trim().toLowerCase();
+    if (!q) return all.slice(0, 50);
+    return all
+      .filter(
+        (l) =>
+          l.city.toLowerCase().includes(q) ||
+          l.name.toLowerCase().includes(q) ||
+          l.postcode.startsWith(q) ||
+          (l.county ?? "").toLowerCase().includes(q),
+      )
+      .slice(0, 50);
+  }, [lockersQuery.data, lockerQuery]);
 
   useEffect(() => {
     if (step >= 2 && !shippingMethod && shippingRates.length) {
@@ -196,9 +230,20 @@ function CheckoutPage() {
 
   const submitShipping = async () => {
     if (!shippingMethod) return toast.error("Vali tarneviis");
+    if (carrier && !selectedLocker) return toast.error("Vali pakiautomaat");
     setSubmitting(true);
     try {
-      await saveShippingMethod(shippingMethod);
+      const payload = carrier && selectedLocker
+        ? {
+            locker_id: selectedLocker.id,
+            locker_name: selectedLocker.name,
+            locker_address: selectedLocker.address,
+            locker_city: selectedLocker.city,
+            locker_postcode: selectedLocker.postcode,
+            locker_country: selectedLocker.country || "EE",
+          }
+        : undefined;
+      await saveShippingMethod(shippingMethod, payload);
       setStep(3);
     } catch (e) {
       handleApiError(e, "Tarneviisi salvestamine ebaõnnestus");
@@ -351,9 +396,62 @@ function CheckoutPage() {
                         ))}
                       </ul>
                     )}
+
+                    {carrier && (
+                      <div className="space-y-2 rounded-lg border border-border p-3 bg-muted/30">
+                        <div className="font-medium text-sm">
+                          Vali pakiautomaat ({carrier === "omniva" ? "Omniva" : carrier === "dpd" ? "DPD" : "Smartpost"})
+                        </div>
+                        {lockersQuery.isLoading ? (
+                          <p className="text-sm text-muted-foreground">Laen pakiautomaate…</p>
+                        ) : (lockersQuery.data ?? []).length === 0 ? (
+                          <p className="text-sm text-destructive">Pakiautomaate ei leitud.</p>
+                        ) : (
+                          <>
+                            <Input
+                              placeholder="Otsi linna, nime või postiindeksi järgi…"
+                              value={lockerQuery}
+                              onChange={(e) => setLockerQuery(e.target.value)}
+                            />
+                            {selectedLocker && (
+                              <div className="text-xs rounded-md bg-primary/10 text-foreground px-3 py-2">
+                                Valitud: <span className="font-medium">{selectedLocker.name}</span> — {selectedLocker.address}, {selectedLocker.city} {selectedLocker.postcode}
+                              </div>
+                            )}
+                            <ul className="max-h-64 overflow-y-auto divide-y divide-border rounded-md border border-border bg-background">
+                              {filteredLockers.map((l) => {
+                                const active = selectedLocker?.id === l.id;
+                                return (
+                                  <li key={l.id}>
+                                    <button
+                                      type="button"
+                                      onClick={() => setSelectedLocker(l)}
+                                      className={`w-full text-left px-3 py-2 text-sm hover:bg-accent ${active ? "bg-primary/10" : ""}`}
+                                    >
+                                      <div className="font-medium">{l.name}</div>
+                                      <div className="text-xs text-muted-foreground">
+                                        {l.address}, {l.city} {l.postcode}
+                                        {l.county ? ` · ${l.county}` : ""}
+                                      </div>
+                                    </button>
+                                  </li>
+                                );
+                              })}
+                              {filteredLockers.length === 0 && (
+                                <li className="px-3 py-3 text-sm text-muted-foreground">Vasteid ei leitud.</li>
+                              )}
+                            </ul>
+                          </>
+                        )}
+                      </div>
+                    )}
+
                     <div className="flex justify-between pt-2">
                       <Button variant="outline" onClick={() => setStep(1)}>Tagasi</Button>
-                      <Button onClick={submitShipping} disabled={submitting || !shippingMethod}>
+                      <Button
+                        onClick={submitShipping}
+                        disabled={submitting || !shippingMethod || (!!carrier && !selectedLocker)}
+                      >
                         {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
                         Jätka makseviisi juurde
                       </Button>
