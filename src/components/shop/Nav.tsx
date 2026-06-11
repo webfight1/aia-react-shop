@@ -23,11 +23,20 @@ const staticItems = [
 ];
 
 export function Nav({ onSelectCategory, selectedSlug }: Props) {
+  const navigate = useNavigate();
   const { data: categories = [] } = useQuery({
     queryKey: ["categories"],
     queryFn: fetchCategories,
     staleTime: 5 * 60_000,
   });
+
+  const handleSelect = (slug: string, name: string) => {
+    if (onSelectCategory) {
+      onSelectCategory(slug, name);
+    } else {
+      navigate({ to: "/pood", search: { cat: slug, name } });
+    }
+  };
 
   const tree = buildTree(categories);
 
