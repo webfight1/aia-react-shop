@@ -59,21 +59,46 @@ const initial: FormState = {
   company_name: "",
 };
 
+const COUNTRIES = [
+  { code: "EE", name: "Eesti" },
+  { code: "LV", name: "Läti" },
+  { code: "LT", name: "Leedu" },
+];
+
+const EE_COUNTIES = [
+  "Harju maakond",
+  "Hiiu maakond",
+  "Ida-Viru maakond",
+  "Jõgeva maakond",
+  "Järva maakond",
+  "Lääne maakond",
+  "Lääne-Viru maakond",
+  "Põlva maakond",
+  "Pärnu maakond",
+  "Rapla maakond",
+  "Saare maakond",
+  "Tartu maakond",
+  "Valga maakond",
+  "Viljandi maakond",
+  "Võru maakond",
+];
+
 function fmt(n: number) {
   return n.toFixed(2).replace(".", ",");
 }
 
-function toAddress(f: FormState): CheckoutAddress {
+function toAddress(f: FormState, hasCompany: boolean): CheckoutAddress {
+  // Bagisto eeldab address/city/postcode välju — ilma ettevõtteta saadame placeholderid.
   return {
     first_name: f.first_name.trim(),
     last_name: f.last_name.trim(),
     email: f.email.trim(),
     phone: f.phone.trim(),
-    address: [f.address.trim()],
-    city: f.city.trim(),
-    postcode: f.postcode.trim(),
-    state: f.state.trim(),
-    country: f.country.trim() || "EE",
+    address: [hasCompany ? f.address.trim() : "-"],
+    city: hasCompany ? f.city.trim() : "-",
+    postcode: hasCompany ? f.postcode.trim() : "00000",
+    state: hasCompany ? f.state.trim() : "",
+    country: (f.country.trim() || "EE").toUpperCase(),
     company_name: f.company_name.trim(),
     vat_id: "",
   };
@@ -144,9 +169,10 @@ function CheckoutPage() {
   const submitAddress = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
-    const required: Array<keyof FormState> = [
-      "first_name", "last_name", "email", "phone", "address", "city", "postcode",
-    ];
+    const hasCompany = !!form.company_name.trim();
+    const required: Array<keyof FormState> = hasCompany
+      ? ["first_name", "last_name", "email", "phone", "address", "city", "postcode"]
+      : ["first_name", "last_name", "email", "phone"];
     const localErrors: Record<string, string[]> = {};
     for (const k of required) {
       if (!form[k].trim()) localErrors[k] = ["Väli on kohustuslik"];
@@ -157,7 +183,7 @@ function CheckoutPage() {
     }
     setSubmitting(true);
     try {
-      await saveCheckoutAddresses(toAddress(form));
+      await saveCheckoutAddresses(toAddress(form, hasCompany));
       setStep(2);
     } catch (e) {
       handleApiError(e, "Aadressi salvestamine ebaõnnestus");
@@ -235,26 +261,53 @@ function CheckoutPage() {
                       <Field label="Telefon *" err={errMsg("phone")}>
                         <Input value={form.phone} onChange={(e) => set("phone", e.target.value)} placeholder="+372..." />
                       </Field>
-                      <Field label="Ettevõte" err={errMsg("company_name")}>
-                        <Input value={form.company_name} onChange={(e) => set("company_name", e.target.value)} />
-                      </Field>
-                      <Field label="Riik *" err={errMsg("country")}>
-                        <Input value={form.country} onChange={(e) => set("country", e.target.value.toUpperCase())} maxLength={2} />
-                      </Field>
                       <div className="sm:col-span-2">
-                        <Field label="Aadress *" err={errMsg("address")}>
-                          <Input value={form.address} onChange={(e) => set("address", e.target.value)} placeholder="Tänav, maja, korter" />
+                        <Field label="Ettevõte (täida, kui soovid arve aadressiga)" err={errMsg("company_name")}>
+                          <Input value={form.company_name} onChange={(e) => set("company_name", e.target.value)} />
                         </Field>
                       </div>
-                      <Field label="Linn *" err={errMsg("city")}>
-                        <Input value={form.city} onChange={(e) => set("city", e.target.value)} />
-                      </Field>
-                      <Field label="Postiindeks *" err={errMsg("postcode")}>
-                        <Input value={form.postcode} onChange={(e) => set("postcode", e.target.value)} />
-                      </Field>
-                      <Field label="Maakond" err={errMsg("state")}>
-                        <Input value={form.state} onChange={(e) => set("state", e.target.value)} />
-                      </Field>
+                      {form.company_name.trim() && (
+                        <>
+                          <Field label="Riik *" err={errMsg("country")}>
+                            <select
+                              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                              value={form.country}
+                              onChange={(e) => { set("country", e.target.value); if (e.target.value !== "EE") set("state", ""); }}
+                            >
+                              {COUNTRIES.map((c) => (
+                                <option key={c.code} value={c.code}>{c.name}</option>
+                              ))}
+                            </select>
+                          </Field>
+                          <Field label="Maakond" err={errMsg("state")}>
+                            {form.country === "EE" ? (
+                              <select
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                value={form.state}
+                                onChange={(e) => set("state", e.target.value)}
+                              >
+                                <option value="">Vali maakond…</option>
+                                {EE_COUNTIES.map((m) => (
+                                  <option key={m} value={m}>{m}</option>
+                                ))}
+                              </select>
+                            ) : (
+                              <Input value={form.state} onChange={(e) => set("state", e.target.value)} />
+                            )}
+                          </Field>
+                          <div className="sm:col-span-2">
+                            <Field label="Aadress *" err={errMsg("address")}>
+                              <Input value={form.address} onChange={(e) => set("address", e.target.value)} placeholder="Tänav, maja, korter" />
+                            </Field>
+                          </div>
+                          <Field label="Linn *" err={errMsg("city")}>
+                            <Input value={form.city} onChange={(e) => set("city", e.target.value)} />
+                          </Field>
+                          <Field label="Postiindeks *" err={errMsg("postcode")}>
+                            <Input value={form.postcode} onChange={(e) => set("postcode", e.target.value)} />
+                          </Field>
+                        </>
+                      )}
                     </div>
                     <div className="flex justify-end pt-2">
                       <Button type="submit" disabled={submitting}>
