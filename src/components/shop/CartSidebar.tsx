@@ -50,7 +50,7 @@ export function CartSidebar({ items, shipping, subtotal, onRemove, isRemoving }:
                     </div>
                   </div>
                   <div className="font-semibold text-foreground tabular-nums">
-                    {item.total.toFixed(2).replace(".", ",")} €
+                    {(Number(item.total) || 0).toFixed(2).replace(".", ",")} €
                   </div>
                   <button
                     onClick={() => onRemove(item.id)}
