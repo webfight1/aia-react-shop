@@ -56,7 +56,6 @@ function useIsDesktop() {
 }
 
 function CategoryPage() {
-  const [cart, setCart] = useState<CartItem[]>([]);
   const [sort, setSort] = useState("default");
   const [hover, setHover] = useState<{ product: Product; rect: DOMRect } | null>(null);
   const [tapProduct, setTapProduct] = useState<Product | null>(null);
@@ -101,18 +100,26 @@ function CategoryPage() {
     return list;
   }, [sort, allProducts]);
 
-  const addToCart = (p: Product) => {
-    setCart((prev) => {
-      const ex = prev.find((i) => i.product.id === p.id);
-      if (ex) return prev.map((i) => (i.product.id === p.id ? { ...i, qty: i.qty + 1 } : i));
-      return [...prev, { product: p, qty: 1 }];
-    });
-  };
-  const removeFromCart = (id: string) =>
-    setCart((prev) => prev.filter((i) => i.product.id !== id));
+  const { items: cartItems, itemsCount, subtotal, addItem, removeItem, isRemoving } = useCart();
 
-  const cartCount = cart.reduce((s, i) => s + i.qty, 0);
-  const cartSubtotal = cart.reduce((s, i) => s + i.product.price * i.qty, 0);
+  const addToCart = async (p: Product) => {
+    try {
+      await addItem(p.id, 1);
+      toast.success(`${p.name} lisatud ostukorvi`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Lisamine ebaõnnestus");
+    }
+  };
+  const removeFromCart = async (cartItemId: number) => {
+    try {
+      await removeItem(cartItemId);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Eemaldamine ebaõnnestus");
+    }
+  };
+
+  const cartCount = itemsCount;
+  const cartSubtotal = subtotal;
 
   return (
     <div className="min-h-screen flex flex-col">
