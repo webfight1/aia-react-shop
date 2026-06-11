@@ -162,3 +162,92 @@ export function cartItemImage(item: BagistoCartItem): string {
   if (!img) return "";
   return img.startsWith("http") ? img : `${API_BASE}${img}`;
 }
+
+// ---------- Checkout ----------
+
+export interface CheckoutAddress {
+  first_name: string;
+  last_name: string;
+  company_name?: string;
+  email: string;
+  phone: string;
+  address: string[]; // MUST be array
+  city: string;
+  postcode: string;
+  state?: string;
+  country: string; // ISO-2
+  vat_id?: string;
+  use_for_shipping?: boolean;
+}
+
+export interface ShippingRate {
+  method: string;
+  method_title: string;
+  price: number;
+  base_formatted_price?: string;
+  formatted_price?: string;
+  carrier_title?: string;
+}
+
+export interface PaymentMethod {
+  method: string;
+  method_title: string;
+  image?: string;
+  description?: string;
+}
+
+export async function saveCheckoutAddresses(billing: CheckoutAddress, shipping?: CheckoutAddress) {
+  const body = {
+    billing: { ...billing, use_for_shipping: shipping ? false : true },
+    shipping: shipping ?? billing,
+  };
+  const res = await cartApi("/checkout/addresses", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+  return res.data ?? null;
+}
+
+export async function getShippingMethods(): Promise<Record<string, { carrier_title?: string; rates: ShippingRate[] }>> {
+  const res = await cartApi("/checkout/shipping-methods", { method: "GET" });
+  const d = res.data as { shipping_rates?: { shippingMethods?: Record<string, { carrier_title?: string; rates: ShippingRate[] }> } } | undefined;
+  return d?.shipping_rates?.shippingMethods ?? {};
+}
+
+export async function saveShippingMethod(shipping_method: string) {
+  const res = await cartApi("/checkout/shipping-method", {
+    method: "POST",
+    body: JSON.stringify({ shipping_method }),
+  });
+  return res.data ?? null;
+}
+
+export async function getPaymentMethods(): Promise<PaymentMethod[]> {
+  const res = await cartApi("/checkout/payment-methods", { method: "GET" });
+  const d = res.data as { payment_methods?: { payment_methods?: PaymentMethod[] } | PaymentMethod[] } | undefined;
+  const pm = d?.payment_methods;
+  if (Array.isArray(pm)) return pm;
+  return pm?.payment_methods ?? [];
+}
+
+export async function savePaymentMethod(method: string) {
+  const res = await cartApi("/checkout/payment-method", {
+    method: "POST",
+    body: JSON.stringify({ payment: { method } }),
+  });
+  return res.data ?? null;
+}
+
+export interface PlaceOrderResult {
+  order?: { id: number; increment_id?: string };
+  redirect_url?: string;
+}
+
+export async function placeOrder(): Promise<PlaceOrderResult> {
+  const res = await cartApi("/checkout/place-order", {
+    method: "POST",
+    body: JSON.stringify({}),
+  });
+  return (res.data ?? {}) as PlaceOrderResult;
+}
+
