@@ -23,7 +23,7 @@ function ThanksPage() {
   const { id } = Route.useSearch();
   return (
     <div className="min-h-screen flex flex-col">
-      <Header cartCount={0} cartTotal={0} />
+      <Header />
       <Nav />
       <main className="flex-1">
         <div className="mx-auto max-w-2xl px-4 md:px-6 py-16 text-center">
