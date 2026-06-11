@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {
   buildTree,
   fetchCategories,
@@ -13,8 +13,7 @@ interface Props {
   selectedSlug?: string;
 }
 
-const staticItems = [
-  { label: "Firmast" },
+const staticItems: { label: string; to?: string }[] = [
   { label: "Müügitingimused" },
   { label: "Uudised" },
   { label: "Abikäsi" },
