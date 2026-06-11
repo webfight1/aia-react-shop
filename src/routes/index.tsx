@@ -58,7 +58,9 @@ function HomePage() {
   const { data: home } = useQuery({
     queryKey: ["home-content"],
     queryFn: fetchHomeContent,
-    staleTime: 5 * 60_000,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    refetchOnMount: "always",
   });
 
   const topCategories = buildTree(catsRaw).slice(0, 6);
