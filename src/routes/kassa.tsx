@@ -230,9 +230,20 @@ function CheckoutPage() {
 
   const submitShipping = async () => {
     if (!shippingMethod) return toast.error("Vali tarneviis");
+    if (carrier && !selectedLocker) return toast.error("Vali pakiautomaat");
     setSubmitting(true);
     try {
-      await saveShippingMethod(shippingMethod);
+      const payload = carrier && selectedLocker
+        ? {
+            locker_id: selectedLocker.id,
+            locker_name: selectedLocker.name,
+            locker_address: selectedLocker.address,
+            locker_city: selectedLocker.city,
+            locker_postcode: selectedLocker.postcode,
+            locker_country: selectedLocker.country || "EE",
+          }
+        : undefined;
+      await saveShippingMethod(shippingMethod, payload);
       setStep(3);
     } catch (e) {
       handleApiError(e, "Tarneviisi salvestamine ebaõnnestus");
