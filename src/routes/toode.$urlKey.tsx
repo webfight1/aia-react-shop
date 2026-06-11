@@ -51,6 +51,17 @@ function ProductPage() {
   const router = useRouter();
   const [qty, setQty] = useState(1);
   const [activeImg, setActiveImg] = useState(0);
+  const { addItem, isAdding } = useCart();
+
+  const handleAdd = async () => {
+    if (!product) return;
+    try {
+      await addItem(product.id, qty);
+      toast.success(`${product.name} lisatud tellimusse`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Lisamine ebaõnnestus");
+    }
+  };
 
   const { data: product, isLoading, isError, error } = useQuery({
     queryKey: ["product", urlKey],
