@@ -22,6 +22,10 @@ import { Footer } from "@/components/shop/Footer";
 import { fetchProducts, type Product } from "@/lib/products";
 
 export const Route = createFileRoute("/pood")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    cat: typeof search.cat === "string" ? search.cat : undefined,
+    name: typeof search.name === "string" ? search.name : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Uued seemned 2025/26 — aiamaailm.ee" },
