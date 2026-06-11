@@ -14,10 +14,10 @@ interface Props {
 }
 
 const staticItems: { label: string; to?: string }[] = [
-  { label: "Müügitingimused" },
-  { label: "Uudised" },
+  { label: "Müügitingimused", to: "/muugitingimused" },
+  { label: "Uudised", to: "/uudised" },
   { label: "Abikäsi" },
-  { label: "Kontakt" },
+  { label: "Kontakt", to: "/kontakt" },
   { label: "Kasvatajatele" },
 ];
 
@@ -79,16 +79,28 @@ export function Nav({ onSelectCategory, selectedSlug }: Props) {
             )}
           </li>
 
-          {staticItems.map((item) => (
-            <li key={item.label}>
-              <a
-                href="#"
-                className="flex items-center gap-1 px-3 py-3 font-medium text-foreground/80 hover:text-primary transition-colors"
-              >
-                {item.label}
-              </a>
-            </li>
-          ))}
+          {staticItems.map((item) =>
+            item.to ? (
+              <li key={item.label}>
+                <Link
+                  to={item.to}
+                  className="flex items-center gap-1 px-3 py-3 font-medium text-foreground/80 hover:text-primary transition-colors"
+                  activeProps={{ className: "text-primary" }}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            ) : (
+              <li key={item.label}>
+                <a
+                  href="#"
+                  className="flex items-center gap-1 px-3 py-3 font-medium text-foreground/80 hover:text-primary transition-colors"
+                >
+                  {item.label}
+                </a>
+              </li>
+            ),
+          )}
         </ul>
       </div>
     </nav>
