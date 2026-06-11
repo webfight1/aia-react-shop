@@ -7,6 +7,8 @@ import { Nav } from "@/components/shop/Nav";
 import { Footer } from "@/components/shop/Footer";
 import { Button } from "@/components/ui/button";
 import { fetchProductByUrlKey } from "@/lib/products";
+import { useCart } from "@/hooks/useCart";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/toode/$urlKey")({
   head: ({ params }) => ({
