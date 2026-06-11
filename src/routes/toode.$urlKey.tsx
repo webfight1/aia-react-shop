@@ -199,9 +199,9 @@ function ProductPage() {
                     <Plus className="h-4 w-4" />
                   </button>
                 </div>
-                <Button size="lg" className="rounded-xl h-12 px-6 flex-1 sm:flex-initial">
+                <Button size="lg" onClick={handleAdd} disabled={isAdding || !product.inStock} className="rounded-xl h-12 px-6 flex-1 sm:flex-initial">
                   <ShoppingBag className="h-4 w-4" />
-                  Lisa tellimusse
+                  {isAdding ? "Lisan…" : "Lisa tellimusse"}
                 </Button>
               </div>
 
