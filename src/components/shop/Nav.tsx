@@ -69,7 +69,7 @@ export function Nav({ onSelectCategory, selectedSlug }: Props) {
                       <CategoryItem
                         key={node.id}
                         node={node}
-                        onSelect={onSelectCategory}
+                        onSelect={handleSelect}
                         selectedSlug={selectedSlug}
                       />
                     ))}
