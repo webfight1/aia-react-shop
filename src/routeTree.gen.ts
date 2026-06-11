@@ -16,6 +16,7 @@ import { Route as MuugitingimusedRouteImport } from './routes/muugitingimused'
 import { Route as KontaktRouteImport } from './routes/kontakt'
 import { Route as KassaRouteImport } from './routes/kassa'
 import { Route as FirmastRouteImport } from './routes/firmast'
+import { Route as AitahRouteImport } from './routes/aitah'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ToodeUrlKeyRouteImport } from './routes/toode.$urlKey'
 
@@ -54,6 +55,11 @@ const FirmastRoute = FirmastRouteImport.update({
   path: '/firmast',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AitahRoute = AitahRouteImport.update({
+  id: '/aitah',
+  path: '/aitah',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -67,6 +73,7 @@ const ToodeUrlKeyRoute = ToodeUrlKeyRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/aitah': typeof AitahRoute
   '/firmast': typeof FirmastRoute
   '/kassa': typeof KassaRoute
   '/kontakt': typeof KontaktRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/aitah': typeof AitahRoute
   '/firmast': typeof FirmastRoute
   '/kassa': typeof KassaRoute
   '/kontakt': typeof KontaktRoute
@@ -90,6 +98,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/aitah': typeof AitahRoute
   '/firmast': typeof FirmastRoute
   '/kassa': typeof KassaRoute
   '/kontakt': typeof KontaktRoute
@@ -103,6 +112,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/aitah'
     | '/firmast'
     | '/kassa'
     | '/kontakt'
@@ -114,6 +124,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/aitah'
     | '/firmast'
     | '/kassa'
     | '/kontakt'
@@ -125,6 +136,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/aitah'
     | '/firmast'
     | '/kassa'
     | '/kontakt'
@@ -137,6 +149,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AitahRoute: typeof AitahRoute
   FirmastRoute: typeof FirmastRoute
   KassaRoute: typeof KassaRoute
   KontaktRoute: typeof KontaktRoute
@@ -198,6 +211,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FirmastRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/aitah': {
+      id: '/aitah'
+      path: '/aitah'
+      fullPath: '/aitah'
+      preLoaderRoute: typeof AitahRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -217,6 +237,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AitahRoute: AitahRoute,
   FirmastRoute: FirmastRoute,
   KassaRoute: KassaRoute,
   KontaktRoute: KontaktRoute,
@@ -229,3 +250,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
