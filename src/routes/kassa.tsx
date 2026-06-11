@@ -59,21 +59,46 @@ const initial: FormState = {
   company_name: "",
 };
 
+const COUNTRIES = [
+  { code: "EE", name: "Eesti" },
+  { code: "LV", name: "Läti" },
+  { code: "LT", name: "Leedu" },
+];
+
+const EE_COUNTIES = [
+  "Harju maakond",
+  "Hiiu maakond",
+  "Ida-Viru maakond",
+  "Jõgeva maakond",
+  "Järva maakond",
+  "Lääne maakond",
+  "Lääne-Viru maakond",
+  "Põlva maakond",
+  "Pärnu maakond",
+  "Rapla maakond",
+  "Saare maakond",
+  "Tartu maakond",
+  "Valga maakond",
+  "Viljandi maakond",
+  "Võru maakond",
+];
+
 function fmt(n: number) {
   return n.toFixed(2).replace(".", ",");
 }
 
-function toAddress(f: FormState): CheckoutAddress {
+function toAddress(f: FormState, hasCompany: boolean): CheckoutAddress {
+  // Bagisto eeldab address/city/postcode välju — ilma ettevõtteta saadame placeholderid.
   return {
     first_name: f.first_name.trim(),
     last_name: f.last_name.trim(),
     email: f.email.trim(),
     phone: f.phone.trim(),
-    address: [f.address.trim()],
-    city: f.city.trim(),
-    postcode: f.postcode.trim(),
-    state: f.state.trim(),
-    country: f.country.trim() || "EE",
+    address: [hasCompany ? f.address.trim() : "-"],
+    city: hasCompany ? f.city.trim() : "-",
+    postcode: hasCompany ? f.postcode.trim() : "00000",
+    state: hasCompany ? f.state.trim() : "",
+    country: (f.country.trim() || "EE").toUpperCase(),
     company_name: f.company_name.trim(),
     vat_id: "",
   };
