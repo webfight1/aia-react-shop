@@ -123,7 +123,7 @@ function CategoryPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header cartCount={cartCount} cartTotal={cartSubtotal + (cart.length ? SHIPPING : 0)} />
+      <Header cartCount={cartCount} cartTotal={cartSubtotal + (cartItems.length ? SHIPPING : 0)} />
       <Nav
         onSelectCategory={(slug, name) => setCategory({ slug, name })}
         selectedSlug={category.slug}
