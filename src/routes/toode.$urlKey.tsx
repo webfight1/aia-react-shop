@@ -7,6 +7,8 @@ import { Nav } from "@/components/shop/Nav";
 import { Footer } from "@/components/shop/Footer";
 import { Button } from "@/components/ui/button";
 import { fetchProductByUrlKey } from "@/lib/products";
+import { useCart } from "@/hooks/useCart";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/toode/$urlKey")({
   head: ({ params }) => ({
@@ -49,6 +51,17 @@ function ProductPage() {
   const router = useRouter();
   const [qty, setQty] = useState(1);
   const [activeImg, setActiveImg] = useState(0);
+  const { addItem, isAdding } = useCart();
+
+  const handleAdd = async () => {
+    if (!product) return;
+    try {
+      await addItem(product.id, qty);
+      toast.success(`${product.name} lisatud tellimusse`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Lisamine ebaõnnestus");
+    }
+  };
 
   const { data: product, isLoading, isError, error } = useQuery({
     queryKey: ["product", urlKey],
@@ -186,9 +199,9 @@ function ProductPage() {
                     <Plus className="h-4 w-4" />
                   </button>
                 </div>
-                <Button size="lg" className="rounded-xl h-12 px-6 flex-1 sm:flex-initial">
+                <Button size="lg" onClick={handleAdd} disabled={isAdding || !product.inStock} className="rounded-xl h-12 px-6 flex-1 sm:flex-initial">
                   <ShoppingBag className="h-4 w-4" />
-                  Lisa tellimusse
+                  {isAdding ? "Lisan…" : "Lisa tellimusse"}
                 </Button>
               </div>
 
