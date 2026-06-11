@@ -209,7 +209,8 @@ function HomePage() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {featuredProducts.map((p: Product) => (
                 <Link
-                  to="/pood"
+                  to="/toode/$urlKey"
+                  params={{ urlKey: p.url_key }}
                   key={p.id}
                   className="group rounded-2xl border border-border bg-card overflow-hidden shadow-sm hover:shadow-md transition-all"
                 >
