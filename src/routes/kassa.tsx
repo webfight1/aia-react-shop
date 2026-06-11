@@ -261,26 +261,53 @@ function CheckoutPage() {
                       <Field label="Telefon *" err={errMsg("phone")}>
                         <Input value={form.phone} onChange={(e) => set("phone", e.target.value)} placeholder="+372..." />
                       </Field>
-                      <Field label="Ettevõte" err={errMsg("company_name")}>
-                        <Input value={form.company_name} onChange={(e) => set("company_name", e.target.value)} />
-                      </Field>
-                      <Field label="Riik *" err={errMsg("country")}>
-                        <Input value={form.country} onChange={(e) => set("country", e.target.value.toUpperCase())} maxLength={2} />
-                      </Field>
                       <div className="sm:col-span-2">
-                        <Field label="Aadress *" err={errMsg("address")}>
-                          <Input value={form.address} onChange={(e) => set("address", e.target.value)} placeholder="Tänav, maja, korter" />
+                        <Field label="Ettevõte (täida, kui soovid arve aadressiga)" err={errMsg("company_name")}>
+                          <Input value={form.company_name} onChange={(e) => set("company_name", e.target.value)} />
                         </Field>
                       </div>
-                      <Field label="Linn *" err={errMsg("city")}>
-                        <Input value={form.city} onChange={(e) => set("city", e.target.value)} />
-                      </Field>
-                      <Field label="Postiindeks *" err={errMsg("postcode")}>
-                        <Input value={form.postcode} onChange={(e) => set("postcode", e.target.value)} />
-                      </Field>
-                      <Field label="Maakond" err={errMsg("state")}>
-                        <Input value={form.state} onChange={(e) => set("state", e.target.value)} />
-                      </Field>
+                      {form.company_name.trim() && (
+                        <>
+                          <Field label="Riik *" err={errMsg("country")}>
+                            <select
+                              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                              value={form.country}
+                              onChange={(e) => { set("country", e.target.value); if (e.target.value !== "EE") set("state", ""); }}
+                            >
+                              {COUNTRIES.map((c) => (
+                                <option key={c.code} value={c.code}>{c.name}</option>
+                              ))}
+                            </select>
+                          </Field>
+                          <Field label="Maakond" err={errMsg("state")}>
+                            {form.country === "EE" ? (
+                              <select
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                value={form.state}
+                                onChange={(e) => set("state", e.target.value)}
+                              >
+                                <option value="">Vali maakond…</option>
+                                {EE_COUNTIES.map((m) => (
+                                  <option key={m} value={m}>{m}</option>
+                                ))}
+                              </select>
+                            ) : (
+                              <Input value={form.state} onChange={(e) => set("state", e.target.value)} />
+                            )}
+                          </Field>
+                          <div className="sm:col-span-2">
+                            <Field label="Aadress *" err={errMsg("address")}>
+                              <Input value={form.address} onChange={(e) => set("address", e.target.value)} placeholder="Tänav, maja, korter" />
+                            </Field>
+                          </div>
+                          <Field label="Linn *" err={errMsg("city")}>
+                            <Input value={form.city} onChange={(e) => set("city", e.target.value)} />
+                          </Field>
+                          <Field label="Postiindeks *" err={errMsg("postcode")}>
+                            <Input value={form.postcode} onChange={(e) => set("postcode", e.target.value)} />
+                          </Field>
+                        </>
+                      )}
                     </div>
                     <div className="flex justify-end pt-2">
                       <Button type="submit" disabled={submitting}>
