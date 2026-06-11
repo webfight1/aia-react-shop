@@ -174,6 +174,19 @@ function pickImageUrl(img?: BagistoImage): string {
   );
 }
 
+function normalizeCartImageUrl(url: string): string {
+  if (!url) return "";
+  const absolute = url.startsWith("http") || url.startsWith("data:")
+    ? url
+    : `${API_BASE}${url.startsWith("/") ? "" : "/"}${url}`;
+
+  const match = absolute.match(/\/cache\/(?:small|medium|large|original)\/product\/(\d+)\/([^/?#]+)\.[a-zA-Z0-9]+(?:[?#].*)?$/);
+  if (!match) return absolute;
+
+  const [, productId, fileName] = match;
+  return `${API_BASE}/storage/cache/product/${productId}/${fileName}_400x400.webp`;
+}
+
 export function cartItemImage(item: BagistoCartItem): string {
   const img =
     pickImageUrl(item.product?.base_image) ||
@@ -183,8 +196,7 @@ export function cartItemImage(item: BagistoCartItem): string {
     pickImageUrl(item.additional?.product?.base_image) ||
     "";
   if (!img) return "";
-  if (img.startsWith("http") || img.startsWith("data:")) return img;
-  return `${API_BASE}${img.startsWith("/") ? "" : "/"}${img}`;
+  return normalizeCartImageUrl(img);
 }
 
 // ---------- Checkout ----------
