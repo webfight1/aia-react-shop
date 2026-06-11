@@ -169,9 +169,10 @@ function CheckoutPage() {
   const submitAddress = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
-    const required: Array<keyof FormState> = [
-      "first_name", "last_name", "email", "phone", "address", "city", "postcode",
-    ];
+    const hasCompany = !!form.company_name.trim();
+    const required: Array<keyof FormState> = hasCompany
+      ? ["first_name", "last_name", "email", "phone", "address", "city", "postcode"]
+      : ["first_name", "last_name", "email", "phone"];
     const localErrors: Record<string, string[]> = {};
     for (const k of required) {
       if (!form[k].trim()) localErrors[k] = ["Väli on kohustuslik"];
@@ -182,7 +183,7 @@ function CheckoutPage() {
     }
     setSubmitting(true);
     try {
-      await saveCheckoutAddresses(toAddress(form));
+      await saveCheckoutAddresses(toAddress(form, hasCompany));
       setStep(2);
     } catch (e) {
       handleApiError(e, "Aadressi salvestamine ebaõnnestus");
