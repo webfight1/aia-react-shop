@@ -9,14 +9,32 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UudisedRouteImport } from './routes/uudised'
 import { Route as PoodRouteImport } from './routes/pood'
+import { Route as MuugitingimusedRouteImport } from './routes/muugitingimused'
+import { Route as KontaktRouteImport } from './routes/kontakt'
 import { Route as FirmastRouteImport } from './routes/firmast'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ToodeUrlKeyRouteImport } from './routes/toode.$urlKey'
 
+const UudisedRoute = UudisedRouteImport.update({
+  id: '/uudised',
+  path: '/uudised',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PoodRoute = PoodRouteImport.update({
   id: '/pood',
   path: '/pood',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MuugitingimusedRoute = MuugitingimusedRouteImport.update({
+  id: '/muugitingimused',
+  path: '/muugitingimused',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KontaktRoute = KontaktRouteImport.update({
+  id: '/kontakt',
+  path: '/kontakt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FirmastRoute = FirmastRouteImport.update({
@@ -38,44 +56,99 @@ const ToodeUrlKeyRoute = ToodeUrlKeyRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/firmast': typeof FirmastRoute
+  '/kontakt': typeof KontaktRoute
+  '/muugitingimused': typeof MuugitingimusedRoute
   '/pood': typeof PoodRoute
+  '/uudised': typeof UudisedRoute
   '/toode/$urlKey': typeof ToodeUrlKeyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/firmast': typeof FirmastRoute
+  '/kontakt': typeof KontaktRoute
+  '/muugitingimused': typeof MuugitingimusedRoute
   '/pood': typeof PoodRoute
+  '/uudised': typeof UudisedRoute
   '/toode/$urlKey': typeof ToodeUrlKeyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/firmast': typeof FirmastRoute
+  '/kontakt': typeof KontaktRoute
+  '/muugitingimused': typeof MuugitingimusedRoute
   '/pood': typeof PoodRoute
+  '/uudised': typeof UudisedRoute
   '/toode/$urlKey': typeof ToodeUrlKeyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/firmast' | '/pood' | '/toode/$urlKey'
+  fullPaths:
+    | '/'
+    | '/firmast'
+    | '/kontakt'
+    | '/muugitingimused'
+    | '/pood'
+    | '/uudised'
+    | '/toode/$urlKey'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/firmast' | '/pood' | '/toode/$urlKey'
-  id: '__root__' | '/' | '/firmast' | '/pood' | '/toode/$urlKey'
+  to:
+    | '/'
+    | '/firmast'
+    | '/kontakt'
+    | '/muugitingimused'
+    | '/pood'
+    | '/uudised'
+    | '/toode/$urlKey'
+  id:
+    | '__root__'
+    | '/'
+    | '/firmast'
+    | '/kontakt'
+    | '/muugitingimused'
+    | '/pood'
+    | '/uudised'
+    | '/toode/$urlKey'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FirmastRoute: typeof FirmastRoute
+  KontaktRoute: typeof KontaktRoute
+  MuugitingimusedRoute: typeof MuugitingimusedRoute
   PoodRoute: typeof PoodRoute
+  UudisedRoute: typeof UudisedRoute
   ToodeUrlKeyRoute: typeof ToodeUrlKeyRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/uudised': {
+      id: '/uudised'
+      path: '/uudised'
+      fullPath: '/uudised'
+      preLoaderRoute: typeof UudisedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pood': {
       id: '/pood'
       path: '/pood'
       fullPath: '/pood'
       preLoaderRoute: typeof PoodRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/muugitingimused': {
+      id: '/muugitingimused'
+      path: '/muugitingimused'
+      fullPath: '/muugitingimused'
+      preLoaderRoute: typeof MuugitingimusedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kontakt': {
+      id: '/kontakt'
+      path: '/kontakt'
+      fullPath: '/kontakt'
+      preLoaderRoute: typeof KontaktRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/firmast': {
@@ -105,7 +178,10 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FirmastRoute: FirmastRoute,
+  KontaktRoute: KontaktRoute,
+  MuugitingimusedRoute: MuugitingimusedRoute,
   PoodRoute: PoodRoute,
+  UudisedRoute: UudisedRoute,
   ToodeUrlKeyRoute: ToodeUrlKeyRoute,
 }
 export const routeTree = rootRouteImport
