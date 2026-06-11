@@ -60,9 +60,16 @@ export function ProductQuickViewPopover({ product, anchorRect, onAdd, onMouseEnt
                 {product.price.toFixed(2).replace(".", ",")} €
               </div>
             </div>
-            <Button size="sm" onClick={() => onAdd(product)} className="rounded-lg">
-              <Plus className="h-4 w-4" /> Lisa tellimusse
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button asChild size="sm" variant="outline" className="rounded-lg">
+                <Link to="/toode/$urlKey" params={{ urlKey: product.url_key }}>
+                  Vaata <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button size="sm" onClick={() => onAdd(product)} className="rounded-lg">
+                <Plus className="h-4 w-4" /> Lisa
+              </Button>
+            </div>
           </div>
         </div>
         <div className="w-full rounded-xl overflow-hidden bg-muted ring-1 ring-border" style={{ height: 352 }}>
