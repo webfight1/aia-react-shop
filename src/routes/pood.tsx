@@ -16,10 +16,12 @@ import {
   ProductQuickViewPopover,
   ProductQuickViewModal,
 } from "@/components/shop/ProductQuickView";
-import { CartSidebar, type CartItem } from "@/components/shop/CartSidebar";
+import { CartSidebar } from "@/components/shop/CartSidebar";
 import { SpecialOffer } from "@/components/shop/SpecialOffer";
 import { Footer } from "@/components/shop/Footer";
 import { fetchProducts, type Product } from "@/lib/products";
+import { useCart } from "@/hooks/useCart";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/pood")({
   validateSearch: (search: Record<string, unknown>) => ({
