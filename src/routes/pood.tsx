@@ -119,7 +119,7 @@ function CategoryPage() {
   };
 
   const cartCount = itemsCount;
-  const cartSubtotal = subtotal;
+  const cartSubtotal = Number(subtotal) || 0;
 
   return (
     <div className="min-h-screen flex flex-col">
