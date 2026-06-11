@@ -1,19 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import {
-  ArrowRight,
-  Leaf,
-  Truck,
-  Sprout,
-  ShieldCheck,
-  Star,
-} from "lucide-react";
+import { ArrowRight, Leaf, Sprout } from "lucide-react";
 import { Header } from "@/components/shop/Header";
 import { Nav } from "@/components/shop/Nav";
 import { Footer } from "@/components/shop/Footer";
 import { Button } from "@/components/ui/button";
 import { buildTree, fetchCategories } from "@/lib/categories";
 import { fetchProducts, type Product } from "@/lib/products";
+import { fetchHomeContent, getLucideIcon } from "@/lib/home";
 import heroImage from "@/assets/hero-garden.jpg";
 
 export const Route = createFileRoute("/")({
@@ -38,6 +32,18 @@ export const Route = createFileRoute("/")({
 
 const FEATURED_CATEGORY = "uued-seemned-202526";
 
+function Icon({
+  name,
+  className,
+}: {
+  name?: string | null;
+  className?: string;
+}) {
+  const Cmp = getLucideIcon(name);
+  if (!Cmp) return null;
+  return <Cmp className={className} />;
+}
+
 function HomePage() {
   const { data: catsRaw = [] } = useQuery({
     queryKey: ["categories"],
@@ -49,9 +55,19 @@ function HomePage() {
     queryFn: () => fetchProducts(FEATURED_CATEGORY),
     staleTime: 60_000,
   });
+  const { data: home } = useQuery({
+    queryKey: ["home-content"],
+    queryFn: fetchHomeContent,
+    staleTime: 5 * 60_000,
+  });
 
   const topCategories = buildTree(catsRaw).slice(0, 6);
   const featuredProducts = featured.slice(0, 8);
+
+  const hero = home?.hero;
+  const valueProps = home?.valueProps ?? [];
+  const story = home?.story;
+  const ctaSection = home?.cta;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -73,71 +89,85 @@ function HomePage() {
 
           <div className="mx-auto max-w-7xl px-4 md:px-6 py-16 md:py-28">
             <div className="max-w-2xl">
-              <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
-                <Sprout className="h-3.5 w-3.5" />
-                Hooaeg 2025 / 26
-              </span>
+              {hero?.badge?.text && (
+                <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary">
+                  <Icon name={hero.badge.icon} className="h-3.5 w-3.5" />
+                  {hero.badge.text}
+                </span>
+              )}
               <h1 className="mt-5 text-4xl md:text-6xl font-bold tracking-tight text-foreground leading-[1.05]">
-                Paneme aiad{" "}
-                <span className="text-primary italic font-serif">elama.</span>
+                {hero?.title?.before ?? "Paneme aiad"}{" "}
+                <span className="text-primary italic font-serif">
+                  {hero?.title?.highlight ?? "elama."}
+                </span>
               </h1>
-              <p className="mt-5 text-lg md:text-xl text-muted-foreground leading-relaxed">
-                Väga hea idanevusega seemned, lai valik lillesibulaid ja
-                aiapidaja tarvikuid — otse aiakasvataja juurest sinu peenrale.
-              </p>
+              {hero?.description && (
+                <p className="mt-5 text-lg md:text-xl text-muted-foreground leading-relaxed">
+                  {hero.description}
+                </p>
+              )}
               <div className="mt-8 flex flex-wrap gap-3">
-                <Button asChild size="lg" className="rounded-xl h-12 px-6">
-                  <Link to="/pood">
-                    Vaata kataloogi
-                    <ArrowRight className="ml-1 h-4 w-4" />
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  size="lg"
-                  className="rounded-xl h-12 px-6 bg-background/70 backdrop-blur"
-                >
-                  <a href="#lugu">Meie lugu</a>
-                </Button>
+                {hero?.primaryCta?.label && hero.primaryCta.href && (
+                  <Button asChild size="lg" className="rounded-xl h-12 px-6">
+                    <Link to={hero.primaryCta.href}>
+                      {hero.primaryCta.label}
+                      <Icon
+                        name={hero.primaryCta.icon}
+                        className="ml-1 h-4 w-4"
+                      />
+                    </Link>
+                  </Button>
+                )}
+                {hero?.secondaryCta?.label && hero.secondaryCta.href && (
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="lg"
+                    className="rounded-xl h-12 px-6 bg-background/70 backdrop-blur"
+                  >
+                    <a href={hero.secondaryCta.href}>
+                      {hero.secondaryCta.label}
+                    </a>
+                  </Button>
+                )}
               </div>
 
-              <div className="mt-10 flex flex-wrap gap-x-8 gap-y-3 text-sm text-muted-foreground">
-                <span className="flex items-center gap-2">
-                  <Star className="h-4 w-4 text-primary" /> 30+ aastat kogemust
-                </span>
-                <span className="flex items-center gap-2">
-                  <Leaf className="h-4 w-4 text-primary" /> 1500+ sorti
-                </span>
-                <span className="flex items-center gap-2">
-                  <Truck className="h-4 w-4 text-primary" /> Saatmine kogu Eestisse
-                </span>
-              </div>
+              {hero?.highlights && hero.highlights.length > 0 && (
+                <div className="mt-10 flex flex-wrap gap-x-8 gap-y-3 text-sm text-muted-foreground">
+                  {hero.highlights.map((h, i) => (
+                    <span key={i} className="flex items-center gap-2">
+                      <Icon name={h.icon} className="h-4 w-4 text-primary" />
+                      {h.text}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </section>
 
         {/* VALUE PROPS */}
-        <section className="border-y border-border bg-secondary/30">
-          <div className="mx-auto max-w-7xl px-4 md:px-6 py-8 grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { icon: Sprout, t: "Kõrge idanevus", d: "Iga partii testitud" },
-              { icon: Leaf, t: "Värske saak", d: "Otse kasvatajalt" },
-              { icon: Truck, t: "Kiire saatmine", d: "Postiga 3 päevaga" },
-              { icon: ShieldCheck, t: "Mõistlik hind", d: "Ilma vahemeesteta" },
-            ].map(({ icon: Icon, t, d }) => (
-              <div key={t} className="flex items-start gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <Icon className="h-5 w-5" />
+        {valueProps.length > 0 && (
+          <section className="border-y border-border bg-secondary/30">
+            <div className="mx-auto max-w-7xl px-4 md:px-6 py-8 grid grid-cols-2 md:grid-cols-4 gap-6">
+              {valueProps.map((v, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <Icon name={v.icon} className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-foreground text-sm">
+                      {v.title}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {v.description}
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <div className="font-semibold text-foreground text-sm">{t}</div>
-                  <div className="text-xs text-muted-foreground">{d}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* CATEGORIES */}
         <section className="mx-auto max-w-7xl px-4 md:px-6 py-14">
@@ -242,82 +272,107 @@ function HomePage() {
         </section>
 
         {/* STORY */}
-        <section id="lugu" className="mx-auto max-w-7xl px-4 md:px-6 py-16">
-          <div className="grid md:grid-cols-2 gap-10 items-center">
-            <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-primary">
-                Aiamaailma lugu
-              </span>
-              <h2 className="mt-2 text-3xl md:text-4xl font-bold tracking-tight">
-                Elav maailm, lõpmatus mitmekesisuses
-              </h2>
-              <p className="mt-5 text-muted-foreground leading-relaxed">
-                Siit leiad tõelist elujõudu — kontsentreeritud korralikult
-                idanevatesse seemnetesse ning lillesibulatesse. Meilt saavad
-                kvaliteetseid seemneid ja lillesibulaid kõik, kes seda soovivad
-                ja seda väga mõistliku hinna eest.
-              </p>
-              <p className="mt-4 text-muted-foreground leading-relaxed">
-                Kes aga soovivad täisteenust, need leiavad kohe tootekataloogi
-                kallale ja koostavad tellimuse, mis saabub postiga kolme kuni
-                viie tööpäeva jooksul soovitud aadressile.
-              </p>
-              <div className="mt-6">
-                <Button asChild variant="outline" className="rounded-xl">
-                  <a href="#">Loe rohkem</a>
-                </Button>
+        {story && (
+          <section
+            id={story.id ?? "lugu"}
+            className="mx-auto max-w-7xl px-4 md:px-6 py-16"
+          >
+            <div className="grid md:grid-cols-2 gap-10 items-center">
+              <div>
+                {story.eyebrow && (
+                  <span className="text-xs font-semibold uppercase tracking-wider text-primary">
+                    {story.eyebrow}
+                  </span>
+                )}
+                {story.title && (
+                  <h2 className="mt-2 text-3xl md:text-4xl font-bold tracking-tight">
+                    {story.title}
+                  </h2>
+                )}
+                {story.paragraphs?.map((p, i) => (
+                  <p
+                    key={i}
+                    className="mt-5 text-muted-foreground leading-relaxed"
+                  >
+                    {p}
+                  </p>
+                ))}
+                {story.cta?.label && story.cta.href && (
+                  <div className="mt-6">
+                    <Button asChild variant="outline" className="rounded-xl">
+                      <a href={story.cta.href}>{story.cta.label}</a>
+                    </Button>
+                  </div>
+                )}
               </div>
-            </div>
-            <div className="relative">
-              <div className="aspect-[4/5] rounded-3xl overflow-hidden shadow-xl">
-                <img
-                  src={heroImage}
-                  alt="Aiamaailma kasvuhoone"
-                  className="h-full w-full object-cover"
-                />
-              </div>
-              <div className="absolute -bottom-6 -left-6 rounded-2xl bg-card border border-border shadow-lg p-5 max-w-[220px]">
-                <div className="text-3xl font-bold text-primary">30+</div>
-                <div className="text-sm text-muted-foreground">
-                  aastat aiapidajaid teenindanud
+              <div className="relative">
+                <div className="aspect-[4/5] rounded-3xl overflow-hidden shadow-xl">
+                  <img
+                    src={heroImage}
+                    alt="Aiamaailma kasvuhoone"
+                    className="h-full w-full object-cover"
+                  />
                 </div>
+                {story.stat?.value && (
+                  <div className="absolute -bottom-6 -left-6 rounded-2xl bg-card border border-border shadow-lg p-5 max-w-[220px]">
+                    <div className="text-3xl font-bold text-primary">
+                      {story.stat.value}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {story.stat.label}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* CTA */}
-        <section className="mx-auto max-w-7xl px-4 md:px-6 pb-16">
-          <div className="rounded-3xl bg-primary text-primary-foreground p-10 md:p-14 relative overflow-hidden">
-            <div className="absolute -right-10 -top-10 h-60 w-60 rounded-full bg-primary-foreground/10" />
-            <div className="absolute -right-20 -bottom-20 h-80 w-80 rounded-full bg-primary-foreground/5" />
-            <div className="relative max-w-2xl">
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-                Valmis hooaega alustama?
-              </h2>
-              <p className="mt-3 text-primary-foreground/90 text-lg">
-                Sirvi täielikku tootekataloogi ja telli oma lemmiksordid juba
-                täna.
-              </p>
-              <div className="mt-6">
-                <Button
-                  asChild
-                  size="lg"
-                  variant="secondary"
-                  className="rounded-xl h-12 px-6"
-                >
-                  <Link to="/pood">
-                    Ava kataloog
-                    <ArrowRight className="ml-1 h-4 w-4" />
-                  </Link>
-                </Button>
+        {ctaSection && (
+          <section className="mx-auto max-w-7xl px-4 md:px-6 pb-16">
+            <div className="rounded-3xl bg-primary text-primary-foreground p-10 md:p-14 relative overflow-hidden">
+              <div className="absolute -right-10 -top-10 h-60 w-60 rounded-full bg-primary-foreground/10" />
+              <div className="absolute -right-20 -bottom-20 h-80 w-80 rounded-full bg-primary-foreground/5" />
+              <div className="relative max-w-2xl">
+                {ctaSection.title && (
+                  <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
+                    {ctaSection.title}
+                  </h2>
+                )}
+                {ctaSection.description && (
+                  <p className="mt-3 text-primary-foreground/90 text-lg">
+                    {ctaSection.description}
+                  </p>
+                )}
+                {ctaSection.button?.label && ctaSection.button.href && (
+                  <div className="mt-6">
+                    <Button
+                      asChild
+                      size="lg"
+                      variant="secondary"
+                      className="rounded-xl h-12 px-6"
+                    >
+                      <Link to={ctaSection.button.href}>
+                        {ctaSection.button.label}
+                        <Icon
+                          name={ctaSection.button.icon}
+                          className="ml-1 h-4 w-4"
+                        />
+                      </Link>
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
       </main>
 
       <Footer />
     </div>
   );
 }
+
+// fallback to silence unused warning in some setups
+void Sprout;
