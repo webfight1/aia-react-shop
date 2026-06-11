@@ -1,4 +1,5 @@
 import { X, ShoppingBag, Loader2 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { cartItemImage, type BagistoCartItem } from "@/lib/cart";
 
@@ -79,11 +80,11 @@ export function CartSidebar({ items, shipping, subtotal, onRemove, isRemoving }:
           </span>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <Button variant="outline" size="sm" className="rounded-lg">
-            Muuda
+          <Button asChild variant="outline" size="sm" className="rounded-lg" disabled={!items.length}>
+            <Link to="/ostukorv">Muuda</Link>
           </Button>
-          <Button size="sm" className="rounded-lg" disabled={!items.length}>
-            Vormista
+          <Button asChild size="sm" className="rounded-lg" disabled={!items.length}>
+            <Link to="/kassa">Vormista</Link>
           </Button>
         </div>
       </div>

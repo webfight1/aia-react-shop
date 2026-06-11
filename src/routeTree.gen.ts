@@ -11,8 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UudisedRouteImport } from './routes/uudised'
 import { Route as PoodRouteImport } from './routes/pood'
+import { Route as OstukorvRouteImport } from './routes/ostukorv'
 import { Route as MuugitingimusedRouteImport } from './routes/muugitingimused'
 import { Route as KontaktRouteImport } from './routes/kontakt'
+import { Route as KassaRouteImport } from './routes/kassa'
 import { Route as FirmastRouteImport } from './routes/firmast'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ToodeUrlKeyRouteImport } from './routes/toode.$urlKey'
@@ -27,6 +29,11 @@ const PoodRoute = PoodRouteImport.update({
   path: '/pood',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OstukorvRoute = OstukorvRouteImport.update({
+  id: '/ostukorv',
+  path: '/ostukorv',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MuugitingimusedRoute = MuugitingimusedRouteImport.update({
   id: '/muugitingimused',
   path: '/muugitingimused',
@@ -35,6 +42,11 @@ const MuugitingimusedRoute = MuugitingimusedRouteImport.update({
 const KontaktRoute = KontaktRouteImport.update({
   id: '/kontakt',
   path: '/kontakt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KassaRoute = KassaRouteImport.update({
+  id: '/kassa',
+  path: '/kassa',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FirmastRoute = FirmastRouteImport.update({
@@ -56,8 +68,10 @@ const ToodeUrlKeyRoute = ToodeUrlKeyRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/firmast': typeof FirmastRoute
+  '/kassa': typeof KassaRoute
   '/kontakt': typeof KontaktRoute
   '/muugitingimused': typeof MuugitingimusedRoute
+  '/ostukorv': typeof OstukorvRoute
   '/pood': typeof PoodRoute
   '/uudised': typeof UudisedRoute
   '/toode/$urlKey': typeof ToodeUrlKeyRoute
@@ -65,8 +79,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/firmast': typeof FirmastRoute
+  '/kassa': typeof KassaRoute
   '/kontakt': typeof KontaktRoute
   '/muugitingimused': typeof MuugitingimusedRoute
+  '/ostukorv': typeof OstukorvRoute
   '/pood': typeof PoodRoute
   '/uudised': typeof UudisedRoute
   '/toode/$urlKey': typeof ToodeUrlKeyRoute
@@ -75,8 +91,10 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/firmast': typeof FirmastRoute
+  '/kassa': typeof KassaRoute
   '/kontakt': typeof KontaktRoute
   '/muugitingimused': typeof MuugitingimusedRoute
+  '/ostukorv': typeof OstukorvRoute
   '/pood': typeof PoodRoute
   '/uudised': typeof UudisedRoute
   '/toode/$urlKey': typeof ToodeUrlKeyRoute
@@ -86,8 +104,10 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/firmast'
+    | '/kassa'
     | '/kontakt'
     | '/muugitingimused'
+    | '/ostukorv'
     | '/pood'
     | '/uudised'
     | '/toode/$urlKey'
@@ -95,8 +115,10 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/firmast'
+    | '/kassa'
     | '/kontakt'
     | '/muugitingimused'
+    | '/ostukorv'
     | '/pood'
     | '/uudised'
     | '/toode/$urlKey'
@@ -104,8 +126,10 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/firmast'
+    | '/kassa'
     | '/kontakt'
     | '/muugitingimused'
+    | '/ostukorv'
     | '/pood'
     | '/uudised'
     | '/toode/$urlKey'
@@ -114,8 +138,10 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FirmastRoute: typeof FirmastRoute
+  KassaRoute: typeof KassaRoute
   KontaktRoute: typeof KontaktRoute
   MuugitingimusedRoute: typeof MuugitingimusedRoute
+  OstukorvRoute: typeof OstukorvRoute
   PoodRoute: typeof PoodRoute
   UudisedRoute: typeof UudisedRoute
   ToodeUrlKeyRoute: typeof ToodeUrlKeyRoute
@@ -137,6 +163,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PoodRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ostukorv': {
+      id: '/ostukorv'
+      path: '/ostukorv'
+      fullPath: '/ostukorv'
+      preLoaderRoute: typeof OstukorvRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/muugitingimused': {
       id: '/muugitingimused'
       path: '/muugitingimused'
@@ -149,6 +182,13 @@ declare module '@tanstack/react-router' {
       path: '/kontakt'
       fullPath: '/kontakt'
       preLoaderRoute: typeof KontaktRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kassa': {
+      id: '/kassa'
+      path: '/kassa'
+      fullPath: '/kassa'
+      preLoaderRoute: typeof KassaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/firmast': {
@@ -178,8 +218,10 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FirmastRoute: FirmastRoute,
+  KassaRoute: KassaRoute,
   KontaktRoute: KontaktRoute,
   MuugitingimusedRoute: MuugitingimusedRoute,
+  OstukorvRoute: OstukorvRoute,
   PoodRoute: PoodRoute,
   UudisedRoute: UudisedRoute,
   ToodeUrlKeyRoute: ToodeUrlKeyRoute,
