@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import {
   buildTree,
   fetchCategories,
@@ -8,7 +9,7 @@ import {
 } from "@/lib/categories";
 
 interface Props {
-  onSelectCategory: (slug: string, name: string) => void;
+  onSelectCategory?: (slug: string, name: string) => void;
   selectedSlug?: string;
 }
 
