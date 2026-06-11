@@ -19,7 +19,7 @@ export const Route = createFileRoute("/toode/$urlKey")({
   component: ProductPage,
   errorComponent: ({ error }) => (
     <div className="min-h-screen flex flex-col">
-      <Header cartCount={0} cartTotal={0} />
+      <Header />
       <Nav />
       <main className="flex-1 mx-auto max-w-3xl px-4 py-20 text-center">
         <h1 className="text-2xl font-bold">Toodet ei leitud</h1>
@@ -33,7 +33,7 @@ export const Route = createFileRoute("/toode/$urlKey")({
   ),
   notFoundComponent: () => (
     <div className="min-h-screen flex flex-col">
-      <Header cartCount={0} cartTotal={0} />
+      <Header />
       <Nav />
       <main className="flex-1 mx-auto max-w-3xl px-4 py-20 text-center">
         <h1 className="text-2xl font-bold">Toodet ei leitud</h1>
@@ -72,7 +72,7 @@ function ProductPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Header cartCount={0} cartTotal={0} />
+        <Header />
         <Nav />
         <main className="flex-1 mx-auto max-w-7xl px-4 md:px-6 py-12">
           <div className="grid md:grid-cols-2 gap-8">
@@ -92,7 +92,7 @@ function ProductPage() {
   if (isError || !product) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Header cartCount={0} cartTotal={0} />
+        <Header />
         <Nav />
         <main className="flex-1 mx-auto max-w-3xl px-4 py-20 text-center">
           <h1 className="text-2xl font-bold">Toodet ei leitud</h1>
@@ -108,7 +108,7 @@ function ProductPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header cartCount={0} cartTotal={0} />
+      <Header />
       <Nav />
 
       <main className="flex-1">
