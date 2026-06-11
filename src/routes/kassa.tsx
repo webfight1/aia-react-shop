@@ -149,6 +149,34 @@ function CheckoutPage() {
   const shippingCost = Number(selectedRate?.price) || 0;
   const total = sub + shippingCost;
 
+  const carrier: ParcelCarrier | null = shippingMethod ? detectParcelCarrier(shippingMethod) : null;
+  const lockersQuery = useQuery({
+    queryKey: ["parcel-lockers", carrier],
+    queryFn: () => getParcelLockers(carrier as ParcelCarrier),
+    enabled: !!carrier,
+    staleTime: 6 * 60 * 60 * 1000,
+  });
+
+  useEffect(() => {
+    setSelectedLocker(null);
+    setLockerQuery("");
+  }, [shippingMethod]);
+
+  const filteredLockers = useMemo(() => {
+    const all = lockersQuery.data ?? [];
+    const q = lockerQuery.trim().toLowerCase();
+    if (!q) return all.slice(0, 50);
+    return all
+      .filter(
+        (l) =>
+          l.city.toLowerCase().includes(q) ||
+          l.name.toLowerCase().includes(q) ||
+          l.postcode.startsWith(q) ||
+          (l.county ?? "").toLowerCase().includes(q),
+      )
+      .slice(0, 50);
+  }, [lockersQuery.data, lockerQuery]);
+
   useEffect(() => {
     if (step >= 2 && !shippingMethod && shippingRates.length) {
       setShippingMethod(shippingRates[0].method);
