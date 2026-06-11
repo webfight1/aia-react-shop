@@ -13,6 +13,8 @@ import { useCart } from "@/hooks/useCart";
 import {
   CartApiError,
   clearCartToken,
+  detectParcelCarrier,
+  getParcelLockers,
   getPaymentMethods,
   getShippingMethods,
   placeOrder,
@@ -20,6 +22,8 @@ import {
   savePaymentMethod,
   saveShippingMethod,
   type CheckoutAddress,
+  type ParcelCarrier,
+  type ParcelLocker,
   type ShippingRate,
 } from "@/lib/cart";
 
