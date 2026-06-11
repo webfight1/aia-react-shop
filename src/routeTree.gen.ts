@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PoodRouteImport } from './routes/pood'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ToodeUrlKeyRouteImport } from './routes/toode.$urlKey'
 
 const PoodRoute = PoodRouteImport.update({
   id: '/pood',
@@ -22,31 +23,40 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ToodeUrlKeyRoute = ToodeUrlKeyRouteImport.update({
+  id: '/toode/$urlKey',
+  path: '/toode/$urlKey',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/pood': typeof PoodRoute
+  '/toode/$urlKey': typeof ToodeUrlKeyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/pood': typeof PoodRoute
+  '/toode/$urlKey': typeof ToodeUrlKeyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/pood': typeof PoodRoute
+  '/toode/$urlKey': typeof ToodeUrlKeyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/pood'
+  fullPaths: '/' | '/pood' | '/toode/$urlKey'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/pood'
-  id: '__root__' | '/' | '/pood'
+  to: '/' | '/pood' | '/toode/$urlKey'
+  id: '__root__' | '/' | '/pood' | '/toode/$urlKey'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PoodRoute: typeof PoodRoute
+  ToodeUrlKeyRoute: typeof ToodeUrlKeyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,13 +75,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/toode/$urlKey': {
+      id: '/toode/$urlKey'
+      path: '/toode/$urlKey'
+      fullPath: '/toode/$urlKey'
+      preLoaderRoute: typeof ToodeUrlKeyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PoodRoute: PoodRoute,
+  ToodeUrlKeyRoute: ToodeUrlKeyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
