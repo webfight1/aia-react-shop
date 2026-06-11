@@ -205,7 +205,7 @@ function CategoryPage() {
 
             {/* Right: sidebar */}
             <div className="space-y-6">
-              <CartSidebar items={cart} shipping={SHIPPING} onRemove={removeFromCart} />
+              <CartSidebar items={cartItems} shipping={SHIPPING} subtotal={cartSubtotal} onRemove={removeFromCart} isRemoving={isRemoving} />
               <SpecialOffer />
             </div>
           </div>
