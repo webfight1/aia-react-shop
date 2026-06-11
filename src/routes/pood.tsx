@@ -73,10 +73,17 @@ function CategoryPage() {
     }
   };
 
+  const search = Route.useSearch();
   const [category, setCategory] = useState<{ slug: string; name: string }>({
-    slug: "uued-seemned-202526",
-    name: "UUED SEEMNED 2025/26",
+    slug: search.cat ?? "uued-seemned-202526",
+    name: search.name ?? "UUED SEEMNED 2025/26",
   });
+
+  useEffect(() => {
+    if (search.cat) {
+      setCategory({ slug: search.cat, name: search.name ?? search.cat });
+    }
+  }, [search.cat, search.name]);
 
   const { data: allProducts = [], isLoading, isError } = useQuery({
     queryKey: ["products", category.slug],
