@@ -396,9 +396,62 @@ function CheckoutPage() {
                         ))}
                       </ul>
                     )}
+
+                    {carrier && (
+                      <div className="space-y-2 rounded-lg border border-border p-3 bg-muted/30">
+                        <div className="font-medium text-sm">
+                          Vali pakiautomaat ({carrier === "omniva" ? "Omniva" : carrier === "dpd" ? "DPD" : "Smartpost"})
+                        </div>
+                        {lockersQuery.isLoading ? (
+                          <p className="text-sm text-muted-foreground">Laen pakiautomaate…</p>
+                        ) : (lockersQuery.data ?? []).length === 0 ? (
+                          <p className="text-sm text-destructive">Pakiautomaate ei leitud.</p>
+                        ) : (
+                          <>
+                            <Input
+                              placeholder="Otsi linna, nime või postiindeksi järgi…"
+                              value={lockerQuery}
+                              onChange={(e) => setLockerQuery(e.target.value)}
+                            />
+                            {selectedLocker && (
+                              <div className="text-xs rounded-md bg-primary/10 text-foreground px-3 py-2">
+                                Valitud: <span className="font-medium">{selectedLocker.name}</span> — {selectedLocker.address}, {selectedLocker.city} {selectedLocker.postcode}
+                              </div>
+                            )}
+                            <ul className="max-h-64 overflow-y-auto divide-y divide-border rounded-md border border-border bg-background">
+                              {filteredLockers.map((l) => {
+                                const active = selectedLocker?.id === l.id;
+                                return (
+                                  <li key={l.id}>
+                                    <button
+                                      type="button"
+                                      onClick={() => setSelectedLocker(l)}
+                                      className={`w-full text-left px-3 py-2 text-sm hover:bg-accent ${active ? "bg-primary/10" : ""}`}
+                                    >
+                                      <div className="font-medium">{l.name}</div>
+                                      <div className="text-xs text-muted-foreground">
+                                        {l.address}, {l.city} {l.postcode}
+                                        {l.county ? ` · ${l.county}` : ""}
+                                      </div>
+                                    </button>
+                                  </li>
+                                );
+                              })}
+                              {filteredLockers.length === 0 && (
+                                <li className="px-3 py-3 text-sm text-muted-foreground">Vasteid ei leitud.</li>
+                              )}
+                            </ul>
+                          </>
+                        )}
+                      </div>
+                    )}
+
                     <div className="flex justify-between pt-2">
                       <Button variant="outline" onClick={() => setStep(1)}>Tagasi</Button>
-                      <Button onClick={submitShipping} disabled={submitting || !shippingMethod}>
+                      <Button
+                        onClick={submitShipping}
+                        disabled={submitting || !shippingMethod || (!!carrier && !selectedLocker)}
+                      >
                         {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
                         Jätka makseviisi juurde
                       </Button>
