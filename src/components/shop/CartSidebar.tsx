@@ -1,20 +1,16 @@
-import { X, ShoppingBag } from "lucide-react";
+import { X, ShoppingBag, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { Product } from "@/lib/products";
-
-export interface CartItem {
-  product: Product;
-  qty: number;
-}
+import { cartItemImage, type BagistoCartItem } from "@/lib/cart";
 
 interface Props {
-  items: CartItem[];
+  items: BagistoCartItem[];
   shipping: number;
-  onRemove: (id: string) => void;
+  subtotal: number;
+  onRemove: (cartItemId: number) => void;
+  isRemoving?: boolean;
 }
 
-export function CartSidebar({ items, shipping, onRemove }: Props) {
-  const subtotal = items.reduce((s, i) => s + i.product.price * i.qty, 0);
+export function CartSidebar({ items, shipping, subtotal, onRemove, isRemoving }: Props) {
   const total = subtotal + (items.length ? shipping : 0);
 
   return (
@@ -33,27 +29,43 @@ export function CartSidebar({ items, shipping, onRemove }: Props) {
           </div>
         ) : (
           <ul className="divide-y divide-border">
-            {items.map(({ product, qty }) => (
-              <li key={product.id} className="flex items-center gap-3 px-4 py-3 text-sm">
-                <div className="flex-1 min-w-0">
-                  <div className="truncate text-foreground">
-                    {qty > 1 && <span className="text-muted-foreground">{qty}× </span>}
-                    {product.name}
+            {items.map((item) => {
+              const img = cartItemImage(item);
+              return (
+                <li key={item.id} className="flex items-center gap-3 px-4 py-3 text-sm">
+                  {img && (
+                    <img
+                      src={img}
+                      alt={item.name}
+                      className="h-10 w-10 rounded-md object-cover ring-1 ring-border shrink-0"
+                    />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="truncate text-foreground">
+                      {item.quantity > 1 && (
+                        <span className="text-muted-foreground">{item.quantity}× </span>
+                      )}
+                      {item.name}
+                    </div>
                   </div>
-                  <div className="text-xs text-muted-foreground">{product.amount}</div>
-                </div>
-                <div className="font-semibold text-foreground tabular-nums">
-                  {(product.price * qty).toFixed(2).replace(".", ",")} €
-                </div>
-                <button
-                  onClick={() => onRemove(product.id)}
-                  className="rounded-full p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
-                  aria-label="Eemalda"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </li>
-            ))}
+                  <div className="font-semibold text-foreground tabular-nums">
+                    {item.total.toFixed(2).replace(".", ",")} €
+                  </div>
+                  <button
+                    onClick={() => onRemove(item.id)}
+                    disabled={isRemoving}
+                    className="rounded-full p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors disabled:opacity-40"
+                    aria-label="Eemalda"
+                  >
+                    {isRemoving ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <X className="h-4 w-4" />
+                    )}
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>

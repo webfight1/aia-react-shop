@@ -16,10 +16,12 @@ import {
   ProductQuickViewPopover,
   ProductQuickViewModal,
 } from "@/components/shop/ProductQuickView";
-import { CartSidebar, type CartItem } from "@/components/shop/CartSidebar";
+import { CartSidebar } from "@/components/shop/CartSidebar";
 import { SpecialOffer } from "@/components/shop/SpecialOffer";
 import { Footer } from "@/components/shop/Footer";
 import { fetchProducts, type Product } from "@/lib/products";
+import { useCart } from "@/hooks/useCart";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/pood")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -54,7 +56,6 @@ function useIsDesktop() {
 }
 
 function CategoryPage() {
-  const [cart, setCart] = useState<CartItem[]>([]);
   const [sort, setSort] = useState("default");
   const [hover, setHover] = useState<{ product: Product; rect: DOMRect } | null>(null);
   const [tapProduct, setTapProduct] = useState<Product | null>(null);
@@ -99,22 +100,30 @@ function CategoryPage() {
     return list;
   }, [sort, allProducts]);
 
-  const addToCart = (p: Product) => {
-    setCart((prev) => {
-      const ex = prev.find((i) => i.product.id === p.id);
-      if (ex) return prev.map((i) => (i.product.id === p.id ? { ...i, qty: i.qty + 1 } : i));
-      return [...prev, { product: p, qty: 1 }];
-    });
-  };
-  const removeFromCart = (id: string) =>
-    setCart((prev) => prev.filter((i) => i.product.id !== id));
+  const { items: cartItems, itemsCount, subtotal, addItem, removeItem, isRemoving } = useCart();
 
-  const cartCount = cart.reduce((s, i) => s + i.qty, 0);
-  const cartSubtotal = cart.reduce((s, i) => s + i.product.price * i.qty, 0);
+  const addToCart = async (p: Product) => {
+    try {
+      await addItem(p.id, 1);
+      toast.success(`${p.name} lisatud ostukorvi`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Lisamine ebaõnnestus");
+    }
+  };
+  const removeFromCart = async (cartItemId: number) => {
+    try {
+      await removeItem(cartItemId);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Eemaldamine ebaõnnestus");
+    }
+  };
+
+  const cartCount = itemsCount;
+  const cartSubtotal = subtotal;
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header cartCount={cartCount} cartTotal={cartSubtotal + (cart.length ? SHIPPING : 0)} />
+      <Header cartCount={cartCount} cartTotal={cartSubtotal + (cartItems.length ? SHIPPING : 0)} />
       <Nav
         onSelectCategory={(slug, name) => setCategory({ slug, name })}
         selectedSlug={category.slug}
@@ -196,7 +205,7 @@ function CategoryPage() {
 
             {/* Right: sidebar */}
             <div className="space-y-6">
-              <CartSidebar items={cart} shipping={SHIPPING} onRemove={removeFromCart} />
+              <CartSidebar items={cartItems} shipping={SHIPPING} subtotal={cartSubtotal} onRemove={removeFromCart} isRemoving={isRemoving} />
               <SpecialOffer />
             </div>
           </div>
