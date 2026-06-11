@@ -14,6 +14,7 @@ import { Route as PoodRouteImport } from './routes/pood'
 import { Route as OstukorvRouteImport } from './routes/ostukorv'
 import { Route as MuugitingimusedRouteImport } from './routes/muugitingimused'
 import { Route as KontaktRouteImport } from './routes/kontakt'
+import { Route as KassaRouteImport } from './routes/kassa'
 import { Route as FirmastRouteImport } from './routes/firmast'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ToodeUrlKeyRouteImport } from './routes/toode.$urlKey'
@@ -43,6 +44,11 @@ const KontaktRoute = KontaktRouteImport.update({
   path: '/kontakt',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KassaRoute = KassaRouteImport.update({
+  id: '/kassa',
+  path: '/kassa',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FirmastRoute = FirmastRouteImport.update({
   id: '/firmast',
   path: '/firmast',
@@ -62,6 +68,7 @@ const ToodeUrlKeyRoute = ToodeUrlKeyRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/firmast': typeof FirmastRoute
+  '/kassa': typeof KassaRoute
   '/kontakt': typeof KontaktRoute
   '/muugitingimused': typeof MuugitingimusedRoute
   '/ostukorv': typeof OstukorvRoute
@@ -72,6 +79,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/firmast': typeof FirmastRoute
+  '/kassa': typeof KassaRoute
   '/kontakt': typeof KontaktRoute
   '/muugitingimused': typeof MuugitingimusedRoute
   '/ostukorv': typeof OstukorvRoute
@@ -83,6 +91,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/firmast': typeof FirmastRoute
+  '/kassa': typeof KassaRoute
   '/kontakt': typeof KontaktRoute
   '/muugitingimused': typeof MuugitingimusedRoute
   '/ostukorv': typeof OstukorvRoute
@@ -95,6 +104,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/firmast'
+    | '/kassa'
     | '/kontakt'
     | '/muugitingimused'
     | '/ostukorv'
@@ -105,6 +115,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/firmast'
+    | '/kassa'
     | '/kontakt'
     | '/muugitingimused'
     | '/ostukorv'
@@ -115,6 +126,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/firmast'
+    | '/kassa'
     | '/kontakt'
     | '/muugitingimused'
     | '/ostukorv'
@@ -126,6 +138,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FirmastRoute: typeof FirmastRoute
+  KassaRoute: typeof KassaRoute
   KontaktRoute: typeof KontaktRoute
   MuugitingimusedRoute: typeof MuugitingimusedRoute
   OstukorvRoute: typeof OstukorvRoute
@@ -171,6 +184,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KontaktRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/kassa': {
+      id: '/kassa'
+      path: '/kassa'
+      fullPath: '/kassa'
+      preLoaderRoute: typeof KassaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/firmast': {
       id: '/firmast'
       path: '/firmast'
@@ -198,6 +218,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FirmastRoute: FirmastRoute,
+  KassaRoute: KassaRoute,
   KontaktRoute: KontaktRoute,
   MuugitingimusedRoute: MuugitingimusedRoute,
   OstukorvRoute: OstukorvRoute,
