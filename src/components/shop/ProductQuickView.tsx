@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Plus, X } from "lucide-react";
+import { ArrowRight, Plus, X } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import type { Product } from "@/lib/products";
