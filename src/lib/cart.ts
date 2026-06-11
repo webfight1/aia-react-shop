@@ -214,12 +214,113 @@ export async function getShippingMethods(): Promise<Record<string, { carrier_tit
   return d?.shipping_rates?.shippingMethods ?? {};
 }
 
-export async function saveShippingMethod(shipping_method: string) {
+export interface ParcelLockerPayload {
+  locker_id: string;
+  locker_name: string;
+  locker_address: string;
+  locker_city: string;
+  locker_postcode: string;
+  locker_country: string;
+}
+
+export async function saveShippingMethod(
+  shipping_method: string,
+  parcel_locker?: ParcelLockerPayload,
+) {
+  const body: Record<string, unknown> = { shipping_method };
+  if (parcel_locker) body.parcel_locker = parcel_locker;
   const res = await cartApi("/checkout/shipping-method", {
     method: "POST",
-    body: JSON.stringify({ shipping_method }),
+    body: JSON.stringify(body),
   });
   return res.data ?? null;
+}
+
+// ---------- Parcel lockers (Omniva / DPD / Smartpost) ----------
+
+export type ParcelCarrier = "omniva" | "dpd" | "smartpost";
+
+export interface ParcelLocker {
+  id: string;
+  name: string;
+  address: string;
+  city: string;
+  postcode: string;
+  country: string;
+  county?: string;
+}
+
+interface OmnivaRaw {
+  zip: string;
+  name: string;
+  county?: string;
+  city: string;
+  street?: string;
+  house?: string;
+}
+interface DpdRaw {
+  parcel_shop_id: string;
+  company_name: string;
+  street?: string;
+  house_no?: string;
+  city: string;
+  zip_code: string;
+  country_code?: string;
+}
+interface SmartpostRaw {
+  name?: string;
+  address?: string;
+  city?: string;
+  zip?: string;
+  county?: string;
+  place_id?: string;
+}
+
+export async function getParcelLockers(carrier: ParcelCarrier): Promise<ParcelLocker[]> {
+  const res = await fetch(`${API_BASE}/api/v1/${carrier}/locations`, {
+    headers: { Accept: "application/json" },
+  });
+  if (!res.ok) return [];
+  const json = (await res.json()) as { data?: { locations?: unknown[] } };
+  const list = json?.data?.locations ?? [];
+  if (carrier === "omniva") {
+    return (list as OmnivaRaw[]).map((l) => ({
+      id: l.zip,
+      name: l.name,
+      address: `${l.street ?? ""} ${l.house ?? ""}`.trim(),
+      city: l.city,
+      postcode: l.zip,
+      country: "EE",
+      county: l.county,
+    }));
+  }
+  if (carrier === "dpd") {
+    return (list as DpdRaw[]).map((l) => ({
+      id: l.parcel_shop_id,
+      name: l.company_name,
+      address: `${l.street ?? ""} ${l.house_no ?? ""}`.trim(),
+      city: l.city,
+      postcode: l.zip_code,
+      country: l.country_code ?? "EE",
+    }));
+  }
+  return (list as SmartpostRaw[]).map((l) => ({
+    id: l.place_id ?? l.zip ?? l.name ?? "",
+    name: l.name ?? "",
+    address: l.address ?? "",
+    city: l.city ?? "",
+    postcode: l.zip ?? "",
+    country: "EE",
+    county: l.county,
+  }));
+}
+
+export function detectParcelCarrier(method: string): ParcelCarrier | null {
+  const m = method.toLowerCase();
+  if (m.startsWith("omniva")) return "omniva";
+  if (m.startsWith("dpd")) return "dpd";
+  if (m.startsWith("smartpost") || m.startsWith("itella")) return "smartpost";
+  return null;
 }
 
 export async function getPaymentMethods(): Promise<PaymentMethod[]> {
