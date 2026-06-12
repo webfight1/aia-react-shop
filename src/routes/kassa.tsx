@@ -27,7 +27,7 @@ import {
   type ShippingRate,
 } from "@/lib/cart";
 import { useAuth } from "@/hooks/useAuth";
-import { getAddresses, type CustomerAddress } from "@/lib/auth";
+import { getAddresses, getOrders, type CustomerAddress } from "@/lib/auth";
 
 export const Route = createFileRoute("/kassa")({
   head: () => ({
@@ -234,6 +234,41 @@ function CheckoutPage() {
     }
   };
 
+  const getRecentOrderIds = async () => {
+    if (!isAuthenticated) return null;
+    try {
+      const res = await getOrders(1, 10);
+      return new Set(res.data.map((order) => order.id));
+    } catch {
+      return null;
+    }
+  };
+
+  const recoverPlacedOrder = async (previousOrderIds: Set<number> | null) => {
+    if (!isAuthenticated || !previousOrderIds) return null;
+
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        const res = await getOrders(1, 10);
+        const recoveredOrder = res.data.find((order) => {
+          if (previousOrderIds.has(order.id)) return false;
+          const createdAt = new Date(order.created_at).getTime();
+          return Number.isFinite(createdAt) && Date.now() - createdAt < 10 * 60 * 1000;
+        });
+
+        if (recoveredOrder) return recoveredOrder;
+      } catch {
+        return null;
+      }
+
+      if (attempt < 2) {
+        await new Promise((resolve) => window.setTimeout(resolve, 700));
+      }
+    }
+
+    return null;
+  };
+
   const submitAddress = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
@@ -322,8 +357,10 @@ function CheckoutPage() {
   const submitPayment = async () => {
     if (!paymentMethod) return toast.error("Vali makseviis");
     setSubmitting(true);
+    let previousOrderIds: Set<number> | null = null;
     try {
       await savePaymentMethod(paymentMethod);
+      previousOrderIds = await getRecentOrderIds();
       const result = await placeOrder();
       clearCartToken();
       queryClient.setQueryData(["cart"], null);
@@ -334,6 +371,16 @@ function CheckoutPage() {
       const id = result.order?.increment_id ?? String(result.order?.id ?? "");
       navigate({ to: "/aitah", search: { id } });
     } catch (e) {
+      if (e instanceof CartApiError && e.status >= 500) {
+        const recoveredOrder = await recoverPlacedOrder(previousOrderIds);
+        if (recoveredOrder) {
+          clearCartToken();
+          queryClient.setQueryData(["cart"], null);
+          navigate({ to: "/aitah", search: { id: recoveredOrder.increment_id ?? String(recoveredOrder.id) } });
+          return;
+        }
+      }
+
       handleApiError(e, "Tellimuse esitamine ebaõnnestus");
     } finally {
       setSubmitting(false);
