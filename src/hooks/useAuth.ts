@@ -11,7 +11,7 @@ import {
   type LoginInput,
   type RegisterInput,
 } from "@/lib/auth";
-import { getCart, clearCartToken } from "@/lib/cart";
+import { getCart } from "@/lib/cart";
 
 export function useAuth() {
   const queryClient = useQueryClient();
@@ -30,8 +30,9 @@ export function useAuth() {
     };
   }, []);
 
-  // After successful login, move guest cart items into customer cart.
-  const mergeGuestCart = useCallback(async () => {
+  // After login, try to sync existing guest cart items into the customer cart.
+  // Best-effort — if the server merges automatically, this is a no-op; failures are silent.
+  const syncGuestCart = useCallback(async () => {
     try {
       const guest = await getCart();
       const items = guest?.items ?? [];
@@ -39,28 +40,25 @@ export function useAuth() {
         try { await addToCustomerCart(it.product_id, it.quantity); } catch { /* ignore */ }
       }
     } catch { /* ignore */ }
-    clearCartToken();
     queryClient.invalidateQueries({ queryKey: ["cart"] });
   }, [queryClient]);
 
   const login = useCallback(async (input: LoginInput) => {
     const u = await apiLogin(input);
     setUser(u);
-    await mergeGuestCart();
+    void syncGuestCart();
     return u;
-  }, [mergeGuestCart]);
+  }, [syncGuestCart]);
 
   const register = useCallback(async (input: RegisterInput) => {
     const u = await apiRegister(input);
     setUser(u);
-    await mergeGuestCart();
     return u;
-  }, [mergeGuestCart]);
+  }, []);
 
   const logout = useCallback(async () => {
     await apiLogout();
     setUser(null);
-    clearCartToken();
     queryClient.invalidateQueries({ queryKey: ["cart"] });
   }, [queryClient]);
 
