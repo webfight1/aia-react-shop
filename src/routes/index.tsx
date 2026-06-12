@@ -9,6 +9,27 @@ import { buildTree, fetchCategories } from "@/lib/categories";
 import { fetchProducts, type Product } from "@/lib/products";
 import { fetchHomeContent, getLucideIcon } from "@/lib/home";
 import heroImage from "@/assets/hero-garden.jpg";
+import catKoogivili from "@/assets/cat-koogivili.jpg";
+import catLilled from "@/assets/cat-lilled.jpg";
+import catMaitsetaimed from "@/assets/cat-maitsetaimed.jpg";
+import catIdandamine from "@/assets/cat-idandamine.jpg";
+import catSeemned from "@/assets/cat-seemned.jpg";
+import catSeemnelint from "@/assets/cat-seemnelint.jpg";
+import catSoodakultuurid from "@/assets/cat-soodakultuurid.jpg";
+import catUued from "@/assets/cat-uued.jpg";
+import catMuu from "@/assets/cat-muu.jpg";
+
+const CATEGORY_IMAGES: Record<string, string> = {
+  "koogivilja-seemned": catKoogivili,
+  "lilleseemned": catLilled,
+  "maitsetaimed": catMaitsetaimed,
+  "seemned-idandamiseks": catIdandamine,
+  "seeria-baltik-seemned": catSeemned,
+  "seemned-lindil": catSeemnelint,
+  "soodapeet-keerispea-ristik": catSoodakultuurid,
+  "uued-seemned-202526": catUued,
+  "kae-siis-mis": catMuu,
+};
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -191,30 +212,34 @@ function HomePage() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-            {topCategories.map((c, i) => (
-              <Link
-                key={c.id}
-                to="/pood"
-                className="group relative overflow-hidden rounded-2xl border border-border bg-card aspect-square p-4 flex flex-col justify-end shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all"
-              >
-                <div
-                  className="absolute inset-0 -z-10 opacity-90 group-hover:opacity-100 transition-opacity"
-                  style={{
-                    background: `linear-gradient(155deg, oklch(0.93 0.06 ${
-                      120 + i * 20
-                    }) 0%, oklch(0.85 0.10 ${110 + i * 15}) 100%)`,
-                  }}
-                  aria-hidden
-                />
-                <Leaf className="absolute top-3 right-3 h-5 w-5 text-foreground/30" />
-                <div className="font-semibold text-foreground leading-tight uppercase text-sm">
-                  {c.name}
-                </div>
-                <div className="text-xs text-foreground/60 mt-1">
-                  {c.children.length} alamkategooriat
-                </div>
-              </Link>
-            ))}
+            {topCategories.map((c) => {
+              const img = CATEGORY_IMAGES[c.slug] ?? catMuu;
+              return (
+                <Link
+                  key={c.id}
+                  to="/pood"
+                  className="group relative overflow-hidden rounded-2xl border border-border bg-card aspect-square p-4 flex flex-col justify-end shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all"
+                >
+                  <img
+                    src={img}
+                    alt={c.name}
+                    loading="lazy"
+                    className="absolute inset-0 -z-10 h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div
+                    className="absolute inset-0 -z-10 bg-gradient-to-t from-black/75 via-black/25 to-transparent"
+                    aria-hidden
+                  />
+                  <Leaf className="absolute top-3 right-3 h-5 w-5 text-white/70 drop-shadow" />
+                  <div className="font-semibold text-white leading-tight uppercase text-sm drop-shadow">
+                    {c.name}
+                  </div>
+                  <div className="text-xs text-white/80 mt-1 drop-shadow">
+                    {c.children.length} alamkategooriat
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </section>
 
