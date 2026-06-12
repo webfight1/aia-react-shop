@@ -6,6 +6,8 @@ export interface Product {
   price: number;
   image: string;
   description: string;
+  featured?: boolean;
+  isNew?: boolean;
 }
 
 export interface ProductDetail extends Product {
@@ -25,6 +27,8 @@ export interface ApiProduct {
   url_key: string;
   short_description?: string | null;
   image: string;
+  featured?: boolean;
+  new?: boolean;
 }
 
 interface ApiProductDetail {
