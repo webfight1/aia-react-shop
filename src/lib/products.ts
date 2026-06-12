@@ -106,9 +106,9 @@ export async function fetchProductByUrlKey(urlKey: string): Promise<ProductDetai
   if (!p) throw new Error("Toodet ei leitud");
   const price = parseFloat(p.price) || 0;
   const images =
-    p.images?.map((i) => i.large_image_url || i.medium_image_url || i.original_image_url || "").filter(Boolean) ?? [];
+    p.images?.map((i: any) => i.original_image_url || i.url || i.large_image_url || i.medium_image_url || "").filter(Boolean) ?? [];
   const baseImage =
-    p.base_image?.large_image_url || p.base_image?.medium_image_url || p.base_image?.original_image_url || "";
+    p.base_image?.original_image_url || (p.base_image as any)?.url || p.base_image?.large_image_url || p.base_image?.medium_image_url || "";
   const allImages = images.length ? images : baseImage ? [baseImage] : [FALLBACK_IMG];
   return {
     id: String(p.id),
