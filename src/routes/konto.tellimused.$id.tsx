@@ -101,15 +101,24 @@ function OrderDetailPage() {
           <p className="text-sm text-muted-foreground">Tooteid pole.</p>
         ) : (
           <ul className="divide-y divide-border">
-            {(order.items ?? []).map((it) => (
-              <li key={it.id} className="flex items-center justify-between py-3 text-sm">
-                <div>
-                  <div className="font-medium">{it.name}</div>
-                  <div className="text-xs text-muted-foreground">Kogus: {it.qty_ordered}</div>
-                </div>
-                <div className="font-semibold tabular-nums">{it.formatted_total ?? `${Number(it.total).toFixed(2)} €`}</div>
-              </li>
-            ))}
+            {(order.items ?? []).map((it) => {
+              const lineTotal = it.total != null ? Number(it.total) : Number(it.price) * Number(it.qty_ordered);
+              return (
+                <li key={it.id} className="flex items-center justify-between py-3 text-sm gap-4">
+                  <div className="min-w-0">
+                    {it.product?.url_key ? (
+                      <Link to="/toode/$urlKey" params={{ urlKey: it.product.url_key }} className="font-medium hover:underline">
+                        {it.name}
+                      </Link>
+                    ) : (
+                      <div className="font-medium">{it.name}</div>
+                    )}
+                    <div className="text-xs text-muted-foreground">Kogus: {it.qty_ordered} · {it.formatted_price ?? `${Number(it.price).toFixed(2)} €`}</div>
+                  </div>
+                  <div className="font-semibold tabular-nums whitespace-nowrap">{it.formatted_total ?? `${lineTotal.toFixed(2)} €`}</div>
+                </li>
+              );
+            })}
           </ul>
         )}
         <div className="border-t border-border mt-4 pt-4 flex justify-between items-baseline">
