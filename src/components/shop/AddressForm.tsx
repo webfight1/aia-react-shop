@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { CustomerAddress } from "@/lib/auth";
+import { useAuth } from "@/hooks/useAuth";
 
 const COUNTRIES = [
   { code: "EE", name: "Eesti" },
@@ -28,12 +29,13 @@ interface Props {
 }
 
 export function AddressForm({ title, initial, onSubmit }: Props) {
+  const { user } = useAuth();
   const [form, setForm] = useState<CustomerAddress>({
-    first_name: initial?.first_name ?? "",
-    last_name: initial?.last_name ?? "",
+    first_name: initial?.first_name ?? user?.first_name ?? "",
+    last_name: initial?.last_name ?? user?.last_name ?? "",
     company_name: initial?.company_name ?? "",
-    email: initial?.email ?? "",
-    phone: initial?.phone ?? "",
+    email: initial?.email ?? user?.email ?? "",
+    phone: initial?.phone ?? user?.phone ?? "",
     address: Array.isArray(initial?.address) ? (initial.address[0] ?? "") : (initial?.address ?? ""),
     city: initial?.city ?? "",
     postcode: initial?.postcode ?? "",
@@ -80,6 +82,9 @@ export function AddressForm({ title, initial, onSubmit }: Props) {
         </Field>
         <Field label="KMKR (valikuline)" err={errMsg("vat_id")}>
           <Input value={form.vat_id ?? ""} onChange={(e) => set("vat_id", e.target.value)} />
+        </Field>
+        <Field label="E-post *" err={errMsg("email")}>
+          <Input type="email" value={form.email ?? ""} onChange={(e) => set("email", e.target.value)} required />
         </Field>
         <Field label="Telefon *" err={errMsg("phone")}>
           <Input value={form.phone} onChange={(e) => set("phone", e.target.value)} required />
