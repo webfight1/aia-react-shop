@@ -241,6 +241,14 @@ export async function reorder(id: number | string): Promise<void> {
   await authApi(`/api/v1/customer/orders/reorder/${id}`, { method: "GET" });
 }
 
+export async function withdrawOrder(id: number | string): Promise<{ order_id: number; status: string } | null> {
+  const res = await authApi<{ message?: string; data?: { order_id: number; status: string } }>(
+    `/api/v1/customer/orders/${id}/withdraw`,
+    { method: "POST" },
+  );
+  return res.data ?? null;
+}
+
 // -------- Addresses --------
 
 export interface CustomerAddress {

@@ -1,10 +1,21 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft, Undo2, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { getOrder, cancelOrder, reorder } from "@/lib/auth";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { getOrder, cancelOrder, reorder, withdrawOrder } from "@/lib/auth";
+import { orderStatusLabel } from "@/lib/order-status";
 
 export const Route = createFileRoute("/konto/tellimused/$id")({
   component: OrderDetailPage,
@@ -14,7 +25,8 @@ function OrderDetailPage() {
   const { id } = Route.useParams();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [busy, setBusy] = useState<"cancel" | "reorder" | null>(null);
+  const [busy, setBusy] = useState<"cancel" | "reorder" | "withdraw" | null>(null);
+  const [showWithdraw, setShowWithdraw] = useState(false);
 
   const { data: order, isLoading } = useQuery({
     queryKey: ["konto", "order", id],
@@ -50,10 +62,26 @@ function OrderDetailPage() {
     }
   };
 
+  const onWithdraw = async () => {
+    setBusy("withdraw");
+    try {
+      await withdrawOrder(id);
+      toast.success("Tellimusest taganetud. Saatsime poele teate.");
+      queryClient.invalidateQueries({ queryKey: ["konto", "order", id] });
+      queryClient.invalidateQueries({ queryKey: ["konto", "orders"] });
+      setShowWithdraw(false);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Taganemine ebaõnnestus");
+    } finally {
+      setBusy(null);
+    }
+  };
+
   if (isLoading) return <p className="text-muted-foreground">Laen…</p>;
   if (!order) return <p className="text-muted-foreground">Tellimust ei leitud.</p>;
 
   const canCancel = ["pending", "processing"].includes(order.status);
+  const canWithdraw = !["withdrawn", "canceled", "closed"].includes(order.status);
 
   return (
     <div className="space-y-6">
@@ -63,7 +91,7 @@ function OrderDetailPage() {
         </Link>
         <h1 className="text-2xl font-bold mt-2">Tellimus #{order.increment_id}</h1>
         <p className="text-sm text-muted-foreground">
-          {new Date(order.created_at).toLocaleString("et-EE")} · staatus: <span className="font-medium text-foreground">{order.status}</span>
+          {new Date(order.created_at).toLocaleString("et-EE")} · staatus: <span className="font-medium text-foreground">{orderStatusLabel(order.status)}</span>
         </p>
       </div>
 
@@ -101,7 +129,43 @@ function OrderDetailPage() {
             {busy === "cancel" && <Loader2 className="h-4 w-4 animate-spin" />} Tühista tellimus
           </Button>
         )}
+        {canWithdraw && (
+          <Button
+            variant="outline"
+            onClick={() => setShowWithdraw(true)}
+            disabled={busy !== null}
+            className="border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800"
+          >
+            <Undo2 className="h-4 w-4" /> Tagane ostust
+          </Button>
+        )}
       </div>
+
+      <AlertDialog open={showWithdraw} onOpenChange={setShowWithdraw}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-500" /> Kas oled kindel?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              EL-i seaduse alusel on sul õigus 14 päeva jooksul ostust taganeda.
+              Pärast kinnitamist saadame poeomanikule teate ja tellimuse staatus muutub
+              <strong> "Taganetud"</strong>.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busy === "withdraw"}>Tühista</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); onWithdraw(); }}
+              disabled={busy === "withdraw"}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {busy === "withdraw" && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
+              Jah, tagane
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
