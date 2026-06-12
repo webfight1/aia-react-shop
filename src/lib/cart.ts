@@ -310,7 +310,7 @@ export async function saveShippingMethod(
 ) {
   const body: Record<string, unknown> = { shipping_method };
   if (parcel_locker) body.parcel_locker = parcel_locker;
-  const res = await cartApi("/checkout/shipping-method", {
+  const res = await checkoutApi(CHECKOUT_PATHS.saveShipping, {
     method: "POST",
     body: JSON.stringify(body),
   });
