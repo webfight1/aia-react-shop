@@ -218,7 +218,7 @@ function HomePage() {
                 <Link
                   key={c.id}
                   to="/pood"
-                  className="group relative overflow-hidden rounded-2xl border border-border bg-card aspect-square p-4 flex flex-col justify-end shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all"
+                  className="group relative isolate overflow-hidden rounded-2xl border border-border aspect-square p-4 flex flex-col justify-end shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all"
                 >
                   <img
                     src={img}
