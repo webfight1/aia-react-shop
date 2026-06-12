@@ -81,22 +81,11 @@ function OrdersListPage() {
                       {o.formatted_grand_total ?? `${Number(o.grand_total).toFixed(2)} €`}
                     </td>
                     <td className="px-4 py-3 text-right whitespace-nowrap">
-                      <div className="inline-flex items-center gap-3">
-                        {canWithdraw && (
-                          <button
-                            type="button"
-                            onClick={() => setWithdrawId(String(o.id))}
-                            className="inline-flex items-center gap-1 text-xs text-red-700 hover:text-red-800 hover:underline"
-                          >
-                            <Undo2 className="h-3.5 w-3.5" /> Tagane
-                          </button>
-                        )}
-                        <Link
-                          to="/konto/tellimused/$id"
-                          params={{ id: String(o.id) }}
-                          className="text-primary hover:underline"
-                        >Vaata</Link>
-                      </div>
+                      <Link
+                        to="/konto/tellimused/$id"
+                        params={{ id: String(o.id) }}
+                        className="text-primary hover:underline"
+                      >Vaata</Link>
                     </td>
                   </tr>
                 );
