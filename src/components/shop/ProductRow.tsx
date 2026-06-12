@@ -66,13 +66,26 @@ export function ProductRow({ product, index, onAdd, onHover, onLeave, onTap }: P
             )}
           </div>
           <div className="md:hidden text-xs text-muted-foreground mt-0.5">
-            {product.amount} · <span className="font-semibold text-foreground">{product.price.toFixed(2).replace(".", ",")} €</span>
+            {product.amount} ·{" "}
+            {product.oldPrice && (
+              <span className="line-through mr-1">{product.oldPrice.toFixed(2).replace(".", ",")} €</span>
+            )}
+            <span className={`font-semibold ${product.oldPrice ? "text-primary" : "text-foreground"}`}>
+              {product.price.toFixed(2).replace(".", ",")} €
+            </span>
           </div>
         </Link>
 
         <div className="hidden md:block text-sm text-muted-foreground">{product.amount}</div>
-        <div className="hidden md:block text-right font-semibold text-foreground">
-          {product.price.toFixed(2).replace(".", ",")} €
+        <div className="hidden md:block text-right">
+          {product.oldPrice && (
+            <div className="text-xs text-muted-foreground line-through leading-tight">
+              {product.oldPrice.toFixed(2).replace(".", ",")} €
+            </div>
+          )}
+          <div className={`font-semibold ${product.oldPrice ? "text-primary" : "text-foreground"}`}>
+            {product.price.toFixed(2).replace(".", ",")} €
+          </div>
         </div>
       </div>
 

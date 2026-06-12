@@ -41,8 +41,15 @@ export function SpecialOffer() {
                 {p.name}
               </div>
               <div className="text-xs text-muted-foreground mt-0.5">{p.amount}</div>
-              <div className="mt-1.5 text-base font-bold text-primary">
-                {p.price.toFixed(2).replace(".", ",")} €
+              <div className="mt-1.5 flex items-baseline gap-2">
+                {p.oldPrice && (
+                  <span className="text-xs text-muted-foreground line-through">
+                    {p.oldPrice.toFixed(2).replace(".", ",")} €
+                  </span>
+                )}
+                <span className="text-base font-bold text-primary">
+                  {p.price.toFixed(2).replace(".", ",")} €
+                </span>
               </div>
             </div>
           </Link>

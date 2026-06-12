@@ -4,6 +4,7 @@ export interface Product {
   name: string;
   amount: string;
   price: number;
+  oldPrice?: number;
   image: string;
   description: string;
   featured?: boolean;
@@ -22,8 +23,9 @@ export interface ApiProduct {
   id: number;
   name: string;
   sku: string;
-  price: string;
-  special_price: string | null;
+  price: string | number;
+  special_price: string | number | null;
+  regular_price?: string | number | null;
   url_key: string;
   short_description?: string | null;
   image: string;
@@ -76,8 +78,13 @@ function htmlToText(html: string): string {
 }
 
 export function mapApiProduct(p: ApiProduct): Product {
-  const priceStr = p.special_price ?? p.price;
-  const price = parseFloat(priceStr) || 0;
+  const toNum = (v: string | number | null | undefined) =>
+    v == null ? NaN : typeof v === "number" ? v : parseFloat(v);
+  const regular = toNum(p.regular_price ?? p.price);
+  const special = toNum(p.special_price);
+  const hasDiscount = !isNaN(special) && special > 0 && !isNaN(regular) && special < regular;
+  const price = hasDiscount ? special : !isNaN(regular) ? regular : 0;
+  const oldPrice = hasDiscount ? regular : undefined;
   const image = p.image ? `${API_BASE}${p.image}` : FALLBACK_IMG;
   const description = p.short_description
     ? htmlToText(p.short_description)
@@ -88,6 +95,7 @@ export function mapApiProduct(p: ApiProduct): Product {
     name: p.name,
     amount: "1 tk",
     price,
+    oldPrice,
     image,
     description,
     featured: p.featured ?? false,
