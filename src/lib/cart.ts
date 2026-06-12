@@ -297,14 +297,16 @@ async function checkoutApi(paths: { guest: string; customer: string }, options: 
     return callGuest();
   }
 
-  // Customer endpoint can't reach a customer-cart (guest cart wasn't merged on login)
-  // or Bagisto blew up on a customer-cart lookup (500). Fall back to guest with X-Cart-Token.
+  // Customer endpoint can't reach a customer-cart (guest cart wasn't merged on login).
+  // Fall back to guest with X-Cart-Token. Do NOT blanket-fallback on 500 — guest
+  // cart is separate and usually has no address/shipping, which turns a backend
+  // bug into a misleading "Tarneaadress is missing" 400.
   const errCode = (json as { data?: { error_code?: string } })?.data?.error_code;
   const errMsg = (json as { data?: { message?: string }; message?: string })?.data?.message
     ?? (json as { message?: string })?.message
     ?? "";
-  const cartLikeError = errCode === "CART_NOT_FOUND" || /cart|product in your cart/i.test(errMsg);
-  if (!res.ok && (cartLikeError || res.status >= 500)) {
+  const cartLikeError = errCode === "CART_NOT_FOUND" || /cart not found|no product in your cart/i.test(errMsg);
+  if (!res.ok && cartLikeError) {
     return callGuest();
   }
 
