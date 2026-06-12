@@ -54,6 +54,25 @@ function ProductPage() {
   const [qty, setQty] = useState(1);
   const [activeImg, setActiveImg] = useState(0);
   const { addItem, isAdding } = useCart();
+  const { isAuthenticated } = useAuth();
+  const queryClient = useQueryClient();
+  const [wishBusy, setWishBusy] = useState(false);
+
+  const { data: product, isLoading, isError, error } = useQuery({
+    queryKey: ["product", urlKey],
+    queryFn: () => fetchProductByUrlKey(urlKey),
+    staleTime: 60_000,
+  });
+
+  const { data: wishlist = [] } = useQuery({
+    queryKey: ["konto", "wishlist"],
+    queryFn: getWishlist,
+    enabled: isAuthenticated,
+    staleTime: 60_000,
+  });
+
+  const productIdNum = product ? Number(product.id) : null;
+  const inWishlist = productIdNum != null && wishlist.some((w) => w.product_id === productIdNum);
 
   const handleAdd = async () => {
     if (!product) return;
@@ -62,6 +81,29 @@ function ProductPage() {
       toast.success(`${product.name} lisatud tellimusse`);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Lisamine ebaõnnestus");
+    }
+  };
+
+  const handleToggleWishlist = async () => {
+    if (!product) return;
+    if (!isAuthenticated) {
+      toast.error("Logi sisse, et lisada soovinimekirja");
+      return;
+    }
+    setWishBusy(true);
+    try {
+      if (inWishlist) {
+        await removeFromWishlist(product.id);
+        toast.success("Eemaldatud soovinimekirjast");
+      } else {
+        await addToWishlist(product.id);
+        toast.success("Lisatud soovinimekirja");
+      }
+      queryClient.invalidateQueries({ queryKey: ["konto", "wishlist"] });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Toiming ebaõnnestus");
+    } finally {
+      setWishBusy(false);
     }
   };
 
