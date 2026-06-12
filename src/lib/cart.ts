@@ -340,8 +340,13 @@ export async function saveCheckoutAddresses(
 
 export async function getShippingMethods(): Promise<Record<string, { carrier_title?: string; rates: ShippingRate[] }>> {
   const res = await checkoutApi(CHECKOUT_PATHS.shippingMethods, { method: "GET" });
-  const d = res.data as { shipping_rates?: { shippingMethods?: Record<string, { carrier_title?: string; rates: ShippingRate[] }> } } | undefined;
-  return d?.shipping_rates?.shippingMethods ?? {};
+  const d = res.data as
+    | {
+        shippingMethods?: Record<string, { carrier_title?: string; rates: ShippingRate[] }>;
+        shipping_rates?: { shippingMethods?: Record<string, { carrier_title?: string; rates: ShippingRate[] }> };
+      }
+    | undefined;
+  return d?.shippingMethods ?? d?.shipping_rates?.shippingMethods ?? {};
 }
 
 export interface ParcelLockerPayload {
