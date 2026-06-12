@@ -37,7 +37,7 @@ function WishlistPage() {
   const onMoveToCart = async (wishlistItemId: number) => {
     setBusyId(wishlistItemId);
     try {
-      await moveWishlistToCart(productId);
+      await moveWishlistToCart(wishlistItemId);
       toast.success("Lisatud ostukorvi");
       invalidate();
     } catch (e) {
