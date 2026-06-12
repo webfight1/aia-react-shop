@@ -1,8 +1,8 @@
-import { Search, ShoppingCart, User } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { ShoppingCart, User } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import { AccountMenu } from "@/components/shop/AccountMenu";
+import { SearchBar } from "@/components/shop/SearchBar";
+
 
 interface HeaderProps {
   cartCount?: number;
@@ -27,19 +27,8 @@ export function Header({ cartCount: cartCountProp, cartTotal: cartTotalProp }: H
           </span>
         </a>
 
-        <div className="relative flex-1 max-w-xl hidden md:block">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Otsi tooteid, sorte, seemneid…"
-            className="pl-9 pr-20 h-10 rounded-xl bg-secondary border-transparent focus-visible:border-primary"
-          />
-          <Button
-            size="sm"
-            className="absolute right-1 top-1/2 -translate-y-1/2 h-8 rounded-lg"
-          >
-            Otsi
-          </Button>
-        </div>
+        <SearchBar />
+
 
         <div className="ml-auto flex items-center gap-4 text-sm">
           <a href="#" className="hidden lg:flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors">
