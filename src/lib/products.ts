@@ -1,3 +1,5 @@
+import { getAuthToken } from "@/lib/auth";
+
 export interface Product {
   id: string;
   url_key: string;
