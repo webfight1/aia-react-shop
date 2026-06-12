@@ -1,8 +1,8 @@
-import { Search, ShoppingCart, User } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { ShoppingCart, User } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import { AccountMenu } from "@/components/shop/AccountMenu";
+import { SearchBar } from "@/components/shop/SearchBar";
+
 
 interface HeaderProps {
   cartCount?: number;
