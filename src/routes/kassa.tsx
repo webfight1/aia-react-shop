@@ -26,6 +26,8 @@ import {
   type ParcelLocker,
   type ShippingRate,
 } from "@/lib/cart";
+import { useAuth } from "@/hooks/useAuth";
+import { getAddresses, type CustomerAddress } from "@/lib/auth";
 
 export const Route = createFileRoute("/kassa")({
   head: () => ({
@@ -114,6 +116,7 @@ function CheckoutPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { items, itemsCount, subtotal, isLoading } = useCart();
+  const { isAuthenticated, user } = useAuth();
   const sub = Number(subtotal) || 0;
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -124,6 +127,35 @@ function CheckoutPage() {
   const [selectedLocker, setSelectedLocker] = useState<ParcelLocker | null>(null);
   const [lockerQuery, setLockerQuery] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [savedAddressId, setSavedAddressId] = useState<number | "new" | null>(null);
+
+  // Saved addresses for logged-in users
+  const savedAddressesQuery = useQuery({
+    queryKey: ["konto", "addresses"],
+    queryFn: getAddresses,
+    enabled: isAuthenticated,
+  });
+  const savedAddresses = savedAddressesQuery.data ?? [];
+
+  // Auto-select default saved address on first load
+  useEffect(() => {
+    if (!isAuthenticated || savedAddressId !== null || savedAddresses.length === 0) return;
+    const def = savedAddresses.find((a) => a.default_address) ?? savedAddresses[0];
+    if (def?.id) setSavedAddressId(def.id);
+  }, [isAuthenticated, savedAddresses, savedAddressId]);
+
+  // Prefill email/name from logged-in user for new-address path
+  useEffect(() => {
+    if (user && !form.email) {
+      setForm((s) => ({
+        ...s,
+        first_name: s.first_name || user.first_name || "",
+        last_name: s.last_name || user.last_name || "",
+        email: s.email || user.email || "",
+        phone: s.phone || user.phone || "",
+      }));
+    }
+  }, [user, form.email]);
 
   const shippingQuery = useQuery({
     queryKey: ["checkout", "shipping-methods"],
