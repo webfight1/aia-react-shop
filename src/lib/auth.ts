@@ -332,23 +332,22 @@ export async function getWishlist(): Promise<WishlistItem[]> {
   return res.data ?? [];
 }
 
-export async function addToWishlist(productId: number | string): Promise<void> {
-  await authApi("/api/v1/customer/wishlist", {
-    method: "POST",
-    body: JSON.stringify({ product_id: Number(productId) }),
-  });
+// Bagisto wishlist on toggle-endpoint: sama POST lisab või eemaldab toote.
+export async function toggleWishlist(productId: number | string): Promise<void> {
+  await authApi(`/api/v1/customer/wishlist/${productId}`, { method: "POST" });
 }
 
-export async function removeFromWishlist(productId: number | string): Promise<void> {
-  await authApi(`/api/v1/customer/wishlist/${productId}`, { method: "DELETE" });
-}
+// Backward-compatible aliases — mõlemad teevad sama toggle-päringu.
+export const addToWishlist = toggleWishlist;
+export const removeFromWishlist = toggleWishlist;
 
 export async function clearWishlist(): Promise<void> {
   await authApi("/api/v1/customer/wishlist/all", { method: "DELETE" });
 }
 
-export async function moveWishlistToCart(productId: number | string): Promise<void> {
-  await authApi(`/api/v1/customer/wishlist/${productId}/move-to-cart`, { method: "POST" });
+// NB: {itemId} on wishlist-kirje ID (mitte product_id).
+export async function moveWishlistToCart(itemId: number | string): Promise<void> {
+  await authApi(`/api/v1/customer/wishlist/${itemId}/move-to-cart`, { method: "POST" });
 }
 
 // -------- Customer cart sync (after login) --------
