@@ -213,6 +213,11 @@ function ProductPage() {
                 <div className={`text-4xl font-bold ${product.oldPrice ? "text-primary" : "text-foreground"}`}>
                   {product.formattedPrice}
                 </div>
+                {product.oldPrice && (
+                  <span className="rounded-md bg-primary/10 text-primary text-xs font-semibold px-2 py-1">
+                    −{Math.round((1 - product.price / product.oldPrice) * 100)}%
+                  </span>
+                )}
                 <div className="text-sm text-muted-foreground">/ {product.amount}</div>
               </div>
 
