@@ -1,13 +1,15 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, Home, Minus, Plus, ShoppingBag, Check, Truck, ShieldCheck } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ChevronRight, Home, Minus, Plus, ShoppingBag, Check, Truck, ShieldCheck, Heart, Loader2 } from "lucide-react";
 import { Header } from "@/components/shop/Header";
 import { Nav } from "@/components/shop/Nav";
 import { Footer } from "@/components/shop/Footer";
 import { Button } from "@/components/ui/button";
 import { fetchProductByUrlKey } from "@/lib/products";
 import { useCart } from "@/hooks/useCart";
+import { useAuth } from "@/hooks/useAuth";
+import { getWishlist, addToWishlist, removeFromWishlist } from "@/lib/auth";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/toode/$urlKey")({
