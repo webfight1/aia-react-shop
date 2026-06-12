@@ -253,11 +253,13 @@ async function checkoutApi(paths: { guest: string; customer: string }, options: 
     const t = getToken();
     if (t) headers["X-Cart-Token"] = t;
     const res = await fetch(`${API_BASE}${paths.guest}`, { ...options, headers });
+    const raw = await res.text();
     let json: CartResponse = {};
-    try { json = (await res.json()) as CartResponse; } catch { /* empty */ }
+    try { json = raw ? (JSON.parse(raw) as CartResponse) : {}; } catch { /* empty */ }
     const newToken = json?.data?.cart_token;
     if (newToken) setToken(newToken);
     if (!res.ok) {
+      console.error("[checkout guest]", paths.guest, res.status, raw, "body:", options.body);
       throw new CartApiError(json?.message ?? `Checkout request failed (${res.status})`, res.status, json?.errors);
     }
     return json;
@@ -272,8 +274,9 @@ async function checkoutApi(paths: { guest: string; customer: string }, options: 
     ...((options.headers as Record<string, string>) ?? {}),
   };
   const res = await fetch(`${API_BASE}${paths.customer}`, { ...options, headers });
+  const raw = await res.text();
   let json: CartResponse = {};
-  try { json = (await res.json()) as CartResponse; } catch { /* empty */ }
+  try { json = raw ? (JSON.parse(raw) as CartResponse) : {}; } catch { /* empty */ }
 
   // Stale customer session — clear auth and retry as guest so checkout continues.
   if (res.status === 401) {
@@ -286,6 +289,7 @@ async function checkoutApi(paths: { guest: string; customer: string }, options: 
   }
 
   if (!res.ok) {
+    console.error("[checkout customer]", paths.customer, res.status, raw, "body:", options.body);
     throw new CartApiError(json?.message ?? `Checkout request failed (${res.status})`, res.status, json?.errors);
   }
   return json;
