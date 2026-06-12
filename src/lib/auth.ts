@@ -259,26 +259,12 @@ export async function getOrders(page = 1, limit = 20): Promise<{
   data: CustomerOrder[];
   meta?: { current_page: number; last_page: number; total: number };
 }> {
-  const res = await authApi<CustomerOrder[] | { data?: CustomerOrder[]; meta?: { current_page: number; last_page: number; total: number } }>(
-    "/api/v1/customer/orders",
+  const res = await authApi<CustomerOrder[] | OrdersEnvelope>(
+    `/api/v1/customer/orders?page=${page}&limit=${limit}`,
     { method: "GET" },
   );
-
   const normalized = normalizeOrdersPayload(res);
-  const total = normalized.data.length;
-  const safeLimit = Math.max(1, limit);
-  const currentPage = Math.max(1, page);
-  const start = (currentPage - 1) * safeLimit;
-  const end = start + safeLimit;
-
-  return {
-    data: normalized.data.slice(start, end),
-    meta: normalized.meta ?? {
-      current_page: currentPage,
-      last_page: Math.max(1, Math.ceil(total / safeLimit)),
-      total,
-    },
-  };
+  return { data: normalized.data, meta: normalized.meta };
 }
 
 export async function getOrder(id: number | string): Promise<CustomerOrder | null> {
