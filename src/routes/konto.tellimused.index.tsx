@@ -2,6 +2,7 @@ import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { getOrders } from "@/lib/auth";
+import { orderStatusLabel } from "@/lib/order-status";
 
 export const Route = createFileRoute("/konto/tellimused/")({
   component: OrdersListPage,
@@ -85,7 +86,8 @@ function StatusBadge({ status }: { status: string }) {
     completed: "bg-green-100 text-green-700",
     canceled: "bg-red-100 text-red-700",
     closed: "bg-gray-200 text-gray-700",
+    withdrawn: "bg-orange-100 text-orange-700",
   };
   const cls = colors[status] ?? "bg-muted text-foreground";
-  return <span className={`inline-block rounded-md px-2 py-0.5 text-xs font-medium ${cls}`}>{status}</span>;
+  return <span className={`inline-block rounded-md px-2 py-0.5 text-xs font-medium ${cls}`}>{orderStatusLabel(status)}</span>;
 }
