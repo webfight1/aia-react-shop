@@ -293,10 +293,14 @@ async function checkoutApi(paths: { guest: string; customer: string }, options: 
     return callGuest();
   }
 
-  // Customer endpoint can't find a customer-cart (guest cart wasn't merged on login).
-  // Fall back to the guest endpoint with the X-Cart-Token so checkout continues.
+  // Customer endpoint can't reach a customer-cart (guest cart wasn't merged on login)
+  // or Bagisto blew up on a customer-cart lookup (500). Fall back to guest with X-Cart-Token.
   const errCode = (json as { data?: { error_code?: string } })?.data?.error_code;
-  if (!res.ok && (errCode === "CART_NOT_FOUND" || /cart/i.test((json as { data?: { message?: string } })?.data?.message ?? ""))) {
+  const errMsg = (json as { data?: { message?: string }; message?: string })?.data?.message
+    ?? (json as { message?: string })?.message
+    ?? "";
+  const cartLikeError = errCode === "CART_NOT_FOUND" || /cart|product in your cart/i.test(errMsg);
+  if (!res.ok && (cartLikeError || res.status >= 500)) {
     return callGuest();
   }
 
