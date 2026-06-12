@@ -121,9 +121,13 @@ export async function register(input: RegisterInput): Promise<AuthUser> {
     method: "POST",
     body: JSON.stringify(input),
   });
-  if (!res.token || !res.data) throw new AuthApiError("Registreerimine ebaõnnestus", 500);
-  setAuth(res.token, res.data);
-  return res.data;
+  // Bagisto register returns only a confirmation message (no token).
+  // If a token came back, use it; otherwise log in to obtain one.
+  if (res.token && res.data) {
+    setAuth(res.token, res.data);
+    return res.data;
+  }
+  return await login({ email: input.email, password: input.password });
 }
 
 export async function logout(): Promise<void> {
