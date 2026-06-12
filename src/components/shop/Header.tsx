@@ -1,7 +1,8 @@
-import { Search, ShoppingCart, User, LogIn } from "lucide-react";
+import { Search, ShoppingCart, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/useCart";
+import { AccountMenu } from "@/components/shop/AccountMenu";
 
 interface HeaderProps {
   cartCount?: number;
@@ -44,9 +45,7 @@ export function Header({ cartCount: cartCountProp, cartTotal: cartTotalProp }: H
           <a href="#" className="hidden lg:flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors">
             <User className="h-4 w-4" /> Püsikliendi konto
           </a>
-          <a href="#" className="hidden lg:flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors">
-            <LogIn className="h-4 w-4" /> Sisene
-          </a>
+          <AccountMenu />
           <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 shadow-sm">
             <ShoppingCart className="h-4 w-4 text-primary" />
             <div className="text-xs leading-tight">
