@@ -95,7 +95,7 @@ function HomePage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <Nav onSelectCategory={() => {}} />
+      <Nav />
 
       <main className="flex-1">
         {/* HERO */}
