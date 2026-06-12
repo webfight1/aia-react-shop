@@ -230,14 +230,21 @@ export interface CustomerOrder {
   channel_name?: string;
 }
 
+type OrdersMeta = { current_page: number; last_page: number; total: number };
+type OrdersEnvelope = { data?: CustomerOrder[] | CustomerOrder; meta?: OrdersMeta };
+
+function isOrdersEnvelope(payload: unknown): payload is OrdersEnvelope {
+  return typeof payload === "object" && payload !== null && ("data" in payload || "meta" in payload);
+}
+
 function normalizeOrdersPayload(
-  payload: CustomerOrder[] | CustomerOrder | { data?: CustomerOrder[] | CustomerOrder; meta?: { current_page: number; last_page: number; total: number } },
-): { data: CustomerOrder[]; meta?: { current_page: number; last_page: number; total: number } } {
+  payload: CustomerOrder[] | CustomerOrder | OrdersEnvelope,
+): { data: CustomerOrder[]; meta?: OrdersMeta } {
   if (Array.isArray(payload)) {
     return { data: payload };
   }
 
-  if (payload && typeof payload === "object" && "data" in payload) {
+  if (isOrdersEnvelope(payload)) {
     const data = payload.data;
     return {
       data: Array.isArray(data) ? data : data ? [data] : [],
