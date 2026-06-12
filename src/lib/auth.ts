@@ -239,8 +239,15 @@ export async function getOrders(page = 1, limit = 20): Promise<{
 }
 
 export async function getOrder(id: number | string): Promise<CustomerOrder | null> {
-  const res = await authApi<{ data: CustomerOrder }>(`/api/v1/customer/orders/${id}`, { method: "GET" });
-  return res.data ?? null;
+  try {
+    const res = await authApi<{ data: CustomerOrder }>(`/api/v1/customer/orders/${id}`, { method: "GET" });
+    if (res?.data) return res.data;
+  } catch {
+    // Bagisto'l on teadaolev bug single-order endpointiga — fallbackime listile
+  }
+  // Fallback: leiame tellimuse listist
+  const list = await getOrders(1, 100);
+  return list.data.find((o) => String(o.id) === String(id)) ?? null;
 }
 
 export async function cancelOrder(id: number | string): Promise<void> {
