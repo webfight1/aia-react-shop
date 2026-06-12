@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, ArrowLeft, Undo2, AlertTriangle } from "lucide-react";
+import { Loader2, ArrowLeft, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -129,17 +129,21 @@ function OrderDetailPage() {
             {busy === "cancel" && <Loader2 className="h-4 w-4 animate-spin" />} Tühista tellimus
           </Button>
         )}
-        {canWithdraw && (
-          <Button
-            variant="outline"
+      </div>
+
+      {canWithdraw && (
+        <p className="text-sm text-muted-foreground">
+          Ei soovi toodet?{" "}
+          <button
+            type="button"
             onClick={() => setShowWithdraw(true)}
             disabled={busy !== null}
-            className="border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800"
+            className="underline hover:text-foreground"
           >
-            <Undo2 className="h-4 w-4" /> Tagane ostust
-          </Button>
-        )}
-      </div>
+            Tagane ostust
+          </button>
+        </p>
+      )}
 
       <AlertDialog open={showWithdraw} onOpenChange={setShowWithdraw}>
         <AlertDialogContent>
