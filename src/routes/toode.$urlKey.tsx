@@ -107,12 +107,6 @@ function ProductPage() {
     }
   };
 
-  const { data: product, isLoading, isError, error } = useQuery({
-    queryKey: ["product", urlKey],
-    queryFn: () => fetchProductByUrlKey(urlKey),
-    staleTime: 60_000,
-  });
-
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
