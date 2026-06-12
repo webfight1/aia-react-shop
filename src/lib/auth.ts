@@ -206,17 +206,18 @@ export interface CustomerOrderItem {
   id: number;
   name: string;
   qty_ordered: number;
-  price: number;
-  total: number;
+  price: number | string;
+  total?: number | string;
   formatted_price?: string;
   formatted_total?: string;
-  product?: { url_key?: string };
+  product?: { url_key?: string; base_image?: { small_image_url?: string } };
 }
 
 export interface CustomerOrder {
   id: number;
   increment_id: string;
   status: string;
+  status_label?: string;
   grand_total: number | string;
   formatted_grand_total?: string;
   created_at: string;
@@ -224,7 +225,9 @@ export interface CustomerOrder {
   shipping_address?: Record<string, unknown>;
   billing_address?: Record<string, unknown>;
   payment?: { method_title?: string };
+  payment_title?: string;
   shipping_title?: string;
+  channel_name?: string;
 }
 
 export async function getOrders(page = 1, limit = 20): Promise<{
@@ -232,21 +235,19 @@ export async function getOrders(page = 1, limit = 20): Promise<{
   meta?: { current_page: number; last_page: number; total: number };
 }> {
   const res = await authApi<{ data: CustomerOrder[]; meta?: { current_page: number; last_page: number; total: number } }>(
-    `/api/v1/customer/orders?page=${page}&limit=${limit}&include=items,items.product`,
+    `/api/v1/customer/orders?page=${page}&limit=${limit}`,
     { method: "GET" },
   );
   return res;
 }
 
 export async function getOrder(id: number | string): Promise<CustomerOrder | null> {
-  const include = "include=items,items.product,addresses,payment,shipping_address,billing_address";
   try {
-    const res = await authApi<{ data: CustomerOrder }>(`/api/v1/customer/orders/${id}?${include}`, { method: "GET" });
+    const res = await authApi<{ data: CustomerOrder }>(`/api/v1/customer/orders/${id}`, { method: "GET" });
     if (res?.data) return res.data;
   } catch {
-    // Bagisto'l on teadaolev bug single-order endpointiga — fallbackime listile
+    // fallback listile, kui single-order endpoint mingil põhjusel ebaõnnestub
   }
-  // Fallback: leiame tellimuse listist (kus items on juba include'itud)
   const list = await getOrders(1, 100);
   return list.data.find((o) => String(o.id) === String(id)) ?? null;
 }
