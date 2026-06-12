@@ -29,12 +29,13 @@ interface Props {
 }
 
 export function AddressForm({ title, initial, onSubmit }: Props) {
+  const { user } = useAuth();
   const [form, setForm] = useState<CustomerAddress>({
-    first_name: initial?.first_name ?? "",
-    last_name: initial?.last_name ?? "",
+    first_name: initial?.first_name ?? user?.first_name ?? "",
+    last_name: initial?.last_name ?? user?.last_name ?? "",
     company_name: initial?.company_name ?? "",
-    email: initial?.email ?? "",
-    phone: initial?.phone ?? "",
+    email: initial?.email ?? user?.email ?? "",
+    phone: initial?.phone ?? user?.phone ?? "",
     address: Array.isArray(initial?.address) ? (initial.address[0] ?? "") : (initial?.address ?? ""),
     city: initial?.city ?? "",
     postcode: initial?.postcode ?? "",
