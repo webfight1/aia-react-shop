@@ -32,7 +32,7 @@ export function Header({ cartCount: cartCountProp, cartTotal: cartTotalProp }: H
 
         <div className="ml-auto flex items-center gap-4 text-sm">
           <AccountMenu />
-          <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 shadow-sm">
+          <a href="/ostukorv" className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 shadow-sm hover:bg-accent transition-colors">
             <ShoppingCart className="h-4 w-4 text-primary" />
             <div className="text-xs leading-tight">
               <div className="text-muted-foreground">Tellimus:</div>
@@ -40,7 +40,7 @@ export function Header({ cartCount: cartCountProp, cartTotal: cartTotalProp }: H
                 {cartCount} {cartCount === 1 ? "toode" : "toodet"} · {cartTotal.toFixed(2).replace(".", ",")} €
               </div>
             </div>
-          </div>
+          </a>
         </div>
       </div>
     </header>
