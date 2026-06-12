@@ -241,6 +241,21 @@ function ProductPage() {
                   <ShoppingBag className="h-4 w-4" />
                   {isAdding ? "Lisan…" : "Lisa tellimusse"}
                 </Button>
+                <Button
+                  size="lg"
+                  variant={inWishlist ? "default" : "outline"}
+                  onClick={handleToggleWishlist}
+                  disabled={wishBusy}
+                  className="rounded-xl h-12 w-12 p-0"
+                  aria-label={inWishlist ? "Eemalda soovinimekirjast" : "Lisa soovinimekirja"}
+                  title={inWishlist ? "Eemalda soovinimekirjast" : "Lisa soovinimekirja"}
+                >
+                  {wishBusy ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Heart className={`h-4 w-4 ${inWishlist ? "fill-current" : ""}`} />
+                  )}
+                </Button>
               </div>
 
               <div className="mt-8 grid grid-cols-2 gap-3">
