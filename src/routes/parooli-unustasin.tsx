@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { forgotPassword, AuthApiError } from "@/lib/auth";
 
-export const Route = createFileRoute("/forgot-password")({
+export const Route = createFileRoute("/parooli-unustasin")({
   head: () => ({ meta: [{ title: "Parooli taastamine — aiamaailm.ee" }] }),
   component: ForgotPasswordPage,
 });
