@@ -25,7 +25,7 @@ export function CmsPage({ slug, fallbackTitle }: Props) {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <Nav onSelectCategory={() => {}} />
+      <Nav />
 
       <main className="flex-1">
         <section className="border-b border-border bg-secondary/30">
