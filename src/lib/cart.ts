@@ -288,6 +288,14 @@ async function checkoutApi(paths: { guest: string; customer: string }, options: 
     return callGuest();
   }
 
+  // Customer endpoint can't find a customer-cart (guest cart wasn't merged on login).
+  // Fall back to the guest endpoint with the X-Cart-Token so checkout continues.
+  const errCode = (json as { data?: { error_code?: string } })?.data?.error_code;
+  if (!res.ok && (errCode === "CART_NOT_FOUND" || /cart/i.test((json as { data?: { message?: string } })?.data?.message ?? ""))) {
+    return callGuest();
+  }
+
+
   if (!res.ok) {
     console.error("[checkout customer]", paths.customer, res.status, raw, "body:", options.body);
     throw new CartApiError(json?.message ?? `Checkout request failed (${res.status})`, res.status, json?.errors);
