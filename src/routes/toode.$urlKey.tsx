@@ -1,13 +1,15 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, Home, Minus, Plus, ShoppingBag, Check, Truck, ShieldCheck } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ChevronRight, Home, Minus, Plus, ShoppingBag, Check, Truck, ShieldCheck, Heart, Loader2 } from "lucide-react";
 import { Header } from "@/components/shop/Header";
 import { Nav } from "@/components/shop/Nav";
 import { Footer } from "@/components/shop/Footer";
 import { Button } from "@/components/ui/button";
 import { fetchProductByUrlKey } from "@/lib/products";
 import { useCart } from "@/hooks/useCart";
+import { useAuth } from "@/hooks/useAuth";
+import { getWishlist, addToWishlist, removeFromWishlist } from "@/lib/auth";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/toode/$urlKey")({
@@ -52,6 +54,25 @@ function ProductPage() {
   const [qty, setQty] = useState(1);
   const [activeImg, setActiveImg] = useState(0);
   const { addItem, isAdding } = useCart();
+  const { isAuthenticated } = useAuth();
+  const queryClient = useQueryClient();
+  const [wishBusy, setWishBusy] = useState(false);
+
+  const { data: product, isLoading, isError, error } = useQuery({
+    queryKey: ["product", urlKey],
+    queryFn: () => fetchProductByUrlKey(urlKey),
+    staleTime: 60_000,
+  });
+
+  const { data: wishlist = [] } = useQuery({
+    queryKey: ["konto", "wishlist"],
+    queryFn: getWishlist,
+    enabled: isAuthenticated,
+    staleTime: 60_000,
+  });
+
+  const productIdNum = product ? Number(product.id) : null;
+  const inWishlist = productIdNum != null && wishlist.some((w) => w.product_id === productIdNum);
 
   const handleAdd = async () => {
     if (!product) return;
@@ -63,11 +84,28 @@ function ProductPage() {
     }
   };
 
-  const { data: product, isLoading, isError, error } = useQuery({
-    queryKey: ["product", urlKey],
-    queryFn: () => fetchProductByUrlKey(urlKey),
-    staleTime: 60_000,
-  });
+  const handleToggleWishlist = async () => {
+    if (!product) return;
+    if (!isAuthenticated) {
+      toast.error("Logi sisse, et lisada soovinimekirja");
+      return;
+    }
+    setWishBusy(true);
+    try {
+      if (inWishlist) {
+        await removeFromWishlist(product.id);
+        toast.success("Eemaldatud soovinimekirjast");
+      } else {
+        await addToWishlist(product.id);
+        toast.success("Lisatud soovinimekirja");
+      }
+      queryClient.invalidateQueries({ queryKey: ["konto", "wishlist"] });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Toiming ebaõnnestus");
+    } finally {
+      setWishBusy(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -202,6 +240,21 @@ function ProductPage() {
                 <Button size="lg" onClick={handleAdd} disabled={isAdding || !product.inStock} className="rounded-xl h-12 px-6 flex-1 sm:flex-initial">
                   <ShoppingBag className="h-4 w-4" />
                   {isAdding ? "Lisan…" : "Lisa tellimusse"}
+                </Button>
+                <Button
+                  size="lg"
+                  variant={inWishlist ? "default" : "outline"}
+                  onClick={handleToggleWishlist}
+                  disabled={wishBusy}
+                  className="rounded-xl h-12 w-12 p-0"
+                  aria-label={inWishlist ? "Eemalda soovinimekirjast" : "Lisa soovinimekirja"}
+                  title={inWishlist ? "Eemalda soovinimekirjast" : "Lisa soovinimekirja"}
+                >
+                  {wishBusy ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Heart className={`h-4 w-4 ${inWishlist ? "fill-current" : ""}`} />
+                  )}
                 </Button>
               </div>
 
