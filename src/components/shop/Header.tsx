@@ -31,9 +31,6 @@ export function Header({ cartCount: cartCountProp, cartTotal: cartTotalProp }: H
 
 
         <div className="ml-auto flex items-center gap-4 text-sm">
-          <a href="#" className="hidden lg:flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors">
-            <User className="h-4 w-4" /> Püsikliendi konto
-          </a>
           <AccountMenu />
           <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 shadow-sm">
             <ShoppingCart className="h-4 w-4 text-primary" />
