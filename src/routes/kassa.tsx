@@ -342,6 +342,50 @@ function CheckoutPage() {
                 {step === 1 && (
                   <form onSubmit={submitAddress} className="space-y-4">
                     <h2 className="text-xl font-semibold">Aadress</h2>
+
+                    {isAuthenticated && savedAddresses.length > 0 && (
+                      <div className="space-y-2 rounded-lg border border-border bg-muted/30 p-3">
+                        <div className="text-sm font-medium">Vali salvestatud aadress</div>
+                        <div className="space-y-2">
+                          {savedAddresses.map((a: CustomerAddress) => {
+                            const id = a.id!;
+                            const addr = Array.isArray(a.address) ? a.address.join(", ") : a.address;
+                            const active = savedAddressId === id;
+                            return (
+                              <label
+                                key={id}
+                                className={`flex items-start gap-3 rounded-md border p-3 cursor-pointer transition ${active ? "border-primary bg-primary/5" : "border-border bg-background hover:bg-accent/40"}`}
+                              >
+                                <input
+                                  type="radio"
+                                  name="saved-addr"
+                                  className="mt-1"
+                                  checked={active}
+                                  onChange={() => setSavedAddressId(id)}
+                                />
+                                <div className="text-sm">
+                                  <div className="font-medium">{a.first_name} {a.last_name}{a.default_address ? " · vaikimisi" : ""}</div>
+                                  <div className="text-muted-foreground">{addr}, {a.postcode} {a.city}, {a.country}</div>
+                                </div>
+                              </label>
+                            );
+                          })}
+                          <label
+                            className={`flex items-center gap-3 rounded-md border p-3 cursor-pointer transition ${savedAddressId === "new" ? "border-primary bg-primary/5" : "border-border bg-background hover:bg-accent/40"}`}
+                          >
+                            <input
+                              type="radio"
+                              name="saved-addr"
+                              checked={savedAddressId === "new"}
+                              onChange={() => setSavedAddressId("new")}
+                            />
+                            <span className="text-sm font-medium">+ Sisesta uus aadress</span>
+                          </label>
+                        </div>
+                      </div>
+                    )}
+
+                    {(!isAuthenticated || savedAddressId === "new" || savedAddresses.length === 0) && (
                     <div className="grid sm:grid-cols-2 gap-4">
                       <Field label="Eesnimi *" err={errMsg("first_name")}>
                         <Input value={form.first_name} onChange={(e) => set("first_name", e.target.value)} />
