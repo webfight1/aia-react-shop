@@ -95,7 +95,7 @@ function AddressCard({ a, busy, onDelete, onMakeDefault }: { a: CustomerAddress;
       </div>
       <div className="flex flex-wrap gap-2 mt-auto pt-2 border-t border-border">
         <Button asChild size="sm" variant="outline">
-          <Link to="/konto/aadressid/$id" params={{ id: String(a.id) }}>
+          <Link to="/konto/aadressid/$id/muuda" params={{ id: String(a.id) }}>
             <Pencil className="h-3.5 w-3.5" /> Muuda
           </Link>
         </Button>
