@@ -206,17 +206,18 @@ export interface CustomerOrderItem {
   id: number;
   name: string;
   qty_ordered: number;
-  price: number;
-  total: number;
+  price: number | string;
+  total?: number | string;
   formatted_price?: string;
   formatted_total?: string;
-  product?: { url_key?: string };
+  product?: { url_key?: string; base_image?: { small_image_url?: string } };
 }
 
 export interface CustomerOrder {
   id: number;
   increment_id: string;
   status: string;
+  status_label?: string;
   grand_total: number | string;
   formatted_grand_total?: string;
   created_at: string;
@@ -224,7 +225,9 @@ export interface CustomerOrder {
   shipping_address?: Record<string, unknown>;
   billing_address?: Record<string, unknown>;
   payment?: { method_title?: string };
+  payment_title?: string;
   shipping_title?: string;
+  channel_name?: string;
 }
 
 export async function getOrders(page = 1, limit = 20): Promise<{
