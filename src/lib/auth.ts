@@ -230,21 +230,55 @@ export interface CustomerOrder {
   channel_name?: string;
 }
 
+function normalizeOrdersPayload(
+  payload: CustomerOrder[] | CustomerOrder | { data?: CustomerOrder[] | CustomerOrder; meta?: { current_page: number; last_page: number; total: number } },
+): { data: CustomerOrder[]; meta?: { current_page: number; last_page: number; total: number } } {
+  if (Array.isArray(payload)) {
+    return { data: payload };
+  }
+
+  if (payload && typeof payload === "object" && "data" in payload) {
+    const data = payload.data;
+    return {
+      data: Array.isArray(data) ? data : data ? [data] : [],
+      meta: payload.meta,
+    };
+  }
+
+  return payload ? { data: [payload] } : { data: [] };
+}
+
 export async function getOrders(page = 1, limit = 20): Promise<{
   data: CustomerOrder[];
   meta?: { current_page: number; last_page: number; total: number };
 }> {
-  const res = await authApi<{ data: CustomerOrder[]; meta?: { current_page: number; last_page: number; total: number } }>(
-    `/api/v1/customer/orders?page=${page}&limit=${limit}`,
+  const res = await authApi<CustomerOrder[] | { data?: CustomerOrder[]; meta?: { current_page: number; last_page: number; total: number } }>(
+    "/api/v1/customer/orders",
     { method: "GET" },
   );
-  return res;
+
+  const normalized = normalizeOrdersPayload(res);
+  const total = normalized.data.length;
+  const safeLimit = Math.max(1, limit);
+  const currentPage = Math.max(1, page);
+  const start = (currentPage - 1) * safeLimit;
+  const end = start + safeLimit;
+
+  return {
+    data: normalized.data.slice(start, end),
+    meta: normalized.meta ?? {
+      current_page: currentPage,
+      last_page: Math.max(1, Math.ceil(total / safeLimit)),
+      total,
+    },
+  };
 }
 
 export async function getOrder(id: number | string): Promise<CustomerOrder | null> {
   try {
-    const res = await authApi<{ data: CustomerOrder }>(`/api/v1/customer/orders/${id}`, { method: "GET" });
-    if (res?.data) return res.data;
+    const res = await authApi<CustomerOrder | CustomerOrder[] | { data?: CustomerOrder | CustomerOrder[] }>(`/api/v1/customer/orders/${id}`, { method: "GET" });
+    const normalized = normalizeOrdersPayload(res);
+    if (normalized.data[0]) return normalized.data[0];
   } catch {
     // fallback listile, kui single-order endpoint mingil põhjusel ebaõnnestub
   }
