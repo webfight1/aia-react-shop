@@ -102,15 +102,27 @@ interface AuthResponse {
   token?: string;
   data?: AuthUser;
   message?: string;
+  cart_merged?: boolean;
+}
+
+export interface LoginResult {
+  user: AuthUser;
+  cartMerged: boolean;
 }
 
 export async function login(input: LoginInput): Promise<AuthUser> {
+  // Lazy import to avoid circular dep with cart.ts
+  const { getCartToken, clearCartToken } = await import("@/lib/cart");
+  const cartToken = getCartToken();
   const res = await authApi<AuthResponse>("/api/v1/customer/login", {
     method: "POST",
+    headers: cartToken ? { "X-Cart-Token": cartToken } : undefined,
     body: JSON.stringify({ ...input, device_name: "browser" }),
   });
   if (!res.token || !res.data) throw new AuthApiError("Sisselogimine ebaõnnestus", 500);
   setAuth(res.token, res.data);
+  // Server side bound the guest cart to the customer; drop the guest token.
+  if (cartToken) clearCartToken();
   return res.data;
 }
 
