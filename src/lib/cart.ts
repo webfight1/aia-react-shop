@@ -288,6 +288,11 @@ async function checkoutApi(paths: { guest: string; customer: string }, options: 
     return callGuest();
   }
 
+  // Customer endpoint missing in this Bagisto build (404) — fall back to guest with X-Cart-Token.
+  if (res.status === 404) {
+    return callGuest();
+  }
+
   // Customer endpoint can't find a customer-cart (guest cart wasn't merged on login).
   // Fall back to the guest endpoint with the X-Cart-Token so checkout continues.
   const errCode = (json as { data?: { error_code?: string } })?.data?.error_code;
