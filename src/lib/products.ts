@@ -120,7 +120,7 @@ function authedFetch(url: string): Promise<Response> {
 
 export async function fetchProducts(slug: string = DEFAULT_CATEGORY_SLUG): Promise<Product[]> {
   const url = `${API_BASE}/api/v1/category/${encodeURIComponent(slug)}?width=400&height=400&format=webp`;
-  const res = await fetch(url);
+  const res = await authedFetch(url);
   if (!res.ok) throw new Error(`Failed to fetch products: ${res.status}`);
   const data: ApiProduct[] = await res.json();
   return data.map(mapApiProduct);
@@ -128,7 +128,7 @@ export async function fetchProducts(slug: string = DEFAULT_CATEGORY_SLUG): Promi
 
 export async function fetchFeaturedProducts(limit = 8): Promise<Product[]> {
   const url = `${API_BASE}/api/v1/featured-products?limit=${limit}&width=400&height=400&format=webp`;
-  const res = await fetch(url);
+  const res = await authedFetch(url);
   if (!res.ok) throw new Error(`Failed to fetch featured products: ${res.status}`);
   const json = await res.json();
   const data: ApiProduct[] = Array.isArray(json?.data) ? json.data : Array.isArray(json) ? json : [];
@@ -137,18 +137,20 @@ export async function fetchFeaturedProducts(limit = 8): Promise<Product[]> {
 
 export async function fetchProductByUrlKey(urlKey: string): Promise<ProductDetail> {
   const url = `${API_BASE}/api/v1/products?url_key=${encodeURIComponent(urlKey)}`;
-  const res = await fetch(url);
+  const res = await authedFetch(url);
   if (!res.ok) throw new Error(`Failed to fetch product: ${res.status}`);
   const json = await res.json();
-  const p: ApiProductDetail | undefined = Array.isArray(json?.data) ? json.data[0] : json?.data;
+  const p: (ApiProductDetail & { formatted_regular_price?: string }) | undefined =
+    Array.isArray(json?.data) ? json.data[0] : json?.data;
   if (!p) throw new Error("Toodet ei leitud");
   const toNum = (v: string | number | null | undefined) =>
     v == null ? NaN : typeof v === "number" ? v : parseFloat(v);
-  const regular = toNum(p.regular_price ?? p.price);
+  const base = toNum(p.price);
+  const regular = toNum(p.regular_price);
   const special = toNum(p.special_price);
-  const hasDiscount = !isNaN(special) && special > 0 && !isNaN(regular) && special < regular;
-  const price = hasDiscount ? special : !isNaN(regular) ? regular : 0;
-  const oldPrice = hasDiscount ? regular : undefined;
+  const candidates = [base, special].filter((n) => !isNaN(n) && n > 0);
+  const price = candidates.length ? Math.min(...candidates) : !isNaN(regular) ? regular : 0;
+  const oldPrice = !isNaN(regular) && regular > price + 0.0001 ? regular : undefined;
   const images =
     p.images?.map((i: any) => i.original_image_url || i.url || i.large_image_url || i.medium_image_url || "").filter(Boolean) ?? [];
   const baseImage =
