@@ -92,7 +92,7 @@ function WishlistPage() {
                     {it.product?.formatted_price ?? (it.product?.price ? `${Number(it.product.price).toFixed(2)} €` : "")}
                   </div>
                   <div className="flex gap-2 mt-3">
-                    <Button size="sm" onClick={() => onMoveToCart(it.product_id)} disabled={busyId === it.product_id}>
+                    <Button size="sm" onClick={() => onMoveToCart(it.id)} disabled={busyId === it.product_id}>
                       {busyId === it.product_id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ShoppingCart className="h-3.5 w-3.5" />}
                       Korvi
                     </Button>
