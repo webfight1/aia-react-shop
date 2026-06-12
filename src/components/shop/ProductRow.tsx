@@ -52,8 +52,18 @@ export function ProductRow({ product, index, onAdd, onHover, onLeave, onTap }: P
           onClick={handleTapIntercept}
           className="min-w-0"
         >
-          <div className="font-medium text-foreground truncate group-hover:text-primary transition-colors">
-            {product.name}
+          <div className="font-medium text-foreground truncate group-hover:text-primary transition-colors flex items-center gap-2">
+            <span className="truncate">{product.name}</span>
+            {product.featured && (
+              <span className="shrink-0 rounded-md bg-amber-100 text-amber-800 text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5">
+                Soovitatud
+              </span>
+            )}
+            {product.isNew && (
+              <span className="shrink-0 rounded-md bg-blue-100 text-blue-800 text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5">
+                Uus
+              </span>
+            )}
           </div>
           <div className="md:hidden text-xs text-muted-foreground mt-0.5">
             {product.amount} · <span className="font-semibold text-foreground">{product.price.toFixed(2).replace(".", ",")} €</span>
