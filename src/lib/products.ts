@@ -6,6 +6,8 @@ export interface Product {
   price: number;
   image: string;
   description: string;
+  featured?: boolean;
+  isNew?: boolean;
 }
 
 export interface ProductDetail extends Product {
@@ -25,6 +27,8 @@ export interface ApiProduct {
   url_key: string;
   short_description?: string | null;
   image: string;
+  featured?: boolean;
+  new?: boolean;
 }
 
 interface ApiProductDetail {
@@ -86,6 +90,8 @@ export function mapApiProduct(p: ApiProduct): Product {
     price,
     image,
     description,
+    featured: p.featured ?? false,
+    isNew: p.new ?? false,
   };
 }
 
@@ -94,6 +100,15 @@ export async function fetchProducts(slug: string = DEFAULT_CATEGORY_SLUG): Promi
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Failed to fetch products: ${res.status}`);
   const data: ApiProduct[] = await res.json();
+  return data.map(mapApiProduct);
+}
+
+export async function fetchFeaturedProducts(limit = 8): Promise<Product[]> {
+  const url = `${API_BASE}/api/v1/featured-products?limit=${limit}&width=400&height=400&format=webp`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to fetch featured products: ${res.status}`);
+  const json = await res.json();
+  const data: ApiProduct[] = Array.isArray(json?.data) ? json.data : Array.isArray(json) ? json : [];
   return data.map(mapApiProduct);
 }
 
