@@ -238,11 +238,30 @@ function CheckoutPage() {
     e.preventDefault();
     setErrors({});
 
-    // Logged-in: use saved address by ID
+    // Logged-in: use saved address — expand to full address payload so it works
+    // whether checkout falls through to the customer or guest endpoint.
     if (isAuthenticated && savedAddressId !== null && savedAddressId !== "new") {
+      const saved = savedAddresses.find((a) => a.id === savedAddressId);
+      if (!saved) {
+        toast.error("Salvestatud aadressi ei leitud");
+        return;
+      }
+      const addr: CheckoutAddress = {
+        first_name: saved.first_name,
+        last_name: saved.last_name,
+        email: saved.email ?? user?.email ?? "",
+        phone: saved.phone,
+        address: Array.isArray(saved.address) ? saved.address : [String(saved.address ?? "-")],
+        city: saved.city || "-",
+        postcode: saved.postcode || "00000",
+        state: saved.state ?? "Harju maakond",
+        country: saved.country || "EE",
+        company_name: saved.company_name ?? "",
+        vat_id: saved.vat_id ?? "",
+      };
       setSubmitting(true);
       try {
-        await saveCheckoutAddresses({ address_id: savedAddressId }, { address_id: savedAddressId });
+        await saveCheckoutAddresses(addr);
         setStep(2);
       } catch (e) {
         handleApiError(e, "Aadressi salvestamine ebaõnnestus");
@@ -251,6 +270,7 @@ function CheckoutPage() {
       }
       return;
     }
+
 
     const hasCompany = !!form.company_name.trim();
     const required: Array<keyof FormState> = hasCompany
