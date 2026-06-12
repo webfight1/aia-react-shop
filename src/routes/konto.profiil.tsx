@@ -50,7 +50,7 @@ function ProfileForm({ user, onSaved }: { user: AuthUser; onSaved: () => void })
         payload.password = pw.password;
         payload.password_confirmation = pw.password_confirmation;
       }
-      await updateProfile(payload as Parameters<typeof updateProfile>[0]);
+      await updateProfile(payload as unknown as Parameters<typeof updateProfile>[0]);
       toast.success("Profiil on uuendatud");
       setPw({ oldpassword: "", password: "", password_confirmation: "" });
       onSaved();

@@ -11,13 +11,13 @@ export const Route = createFileRoute("/konto")({
   component: KontoLayout,
 });
 
-const links = [
+const links: ReadonlyArray<{ to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean }> = [
   { to: "/konto", label: "Ülevaade", icon: LayoutDashboard, exact: true },
   { to: "/konto/tellimused", label: "Tellimused", icon: Package },
   { to: "/konto/aadressid", label: "Aadressid", icon: MapPin },
   { to: "/konto/soovinimekiri", label: "Soovinimekiri", icon: Heart },
   { to: "/konto/profiil", label: "Profiil", icon: UserCircle },
-] as const;
+];
 
 function KontoLayout() {
   const { isAuthenticated, isReady, logout, user } = useAuth();
