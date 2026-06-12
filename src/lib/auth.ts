@@ -232,20 +232,21 @@ export async function getOrders(page = 1, limit = 20): Promise<{
   meta?: { current_page: number; last_page: number; total: number };
 }> {
   const res = await authApi<{ data: CustomerOrder[]; meta?: { current_page: number; last_page: number; total: number } }>(
-    `/api/v1/customer/orders?page=${page}&limit=${limit}`,
+    `/api/v1/customer/orders?page=${page}&limit=${limit}&include=items,items.product`,
     { method: "GET" },
   );
   return res;
 }
 
 export async function getOrder(id: number | string): Promise<CustomerOrder | null> {
+  const include = "include=items,items.product,addresses,payment,shipping_address,billing_address";
   try {
-    const res = await authApi<{ data: CustomerOrder }>(`/api/v1/customer/orders/${id}`, { method: "GET" });
+    const res = await authApi<{ data: CustomerOrder }>(`/api/v1/customer/orders/${id}?${include}`, { method: "GET" });
     if (res?.data) return res.data;
   } catch {
     // Bagisto'l on teadaolev bug single-order endpointiga — fallbackime listile
   }
-  // Fallback: leiame tellimuse listist
+  // Fallback: leiame tellimuse listist (kus items on juba include'itud)
   const list = await getOrders(1, 100);
   return list.data.find((o) => String(o.id) === String(id)) ?? null;
 }
