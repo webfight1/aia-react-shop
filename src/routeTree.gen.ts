@@ -24,9 +24,13 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as KontoIndexRouteImport } from './routes/konto.index'
 import { Route as ToodeUrlKeyRouteImport } from './routes/toode.$urlKey'
 import { Route as ParoolUuestiTokenRouteImport } from './routes/parool-uuesti.$token'
+import { Route as KontoSoovinimekiriRouteImport } from './routes/konto.soovinimekiri'
 import { Route as KontoProfiilRouteImport } from './routes/konto.profiil'
 import { Route as KontoTellimusedIndexRouteImport } from './routes/konto.tellimused.index'
+import { Route as KontoAadressidIndexRouteImport } from './routes/konto.aadressid.index'
 import { Route as KontoTellimusedIdRouteImport } from './routes/konto.tellimused.$id'
+import { Route as KontoAadressidUusRouteImport } from './routes/konto.aadressid.uus'
+import { Route as KontoAadressidIdRouteImport } from './routes/konto.aadressid.$id'
 
 const UudisedRoute = UudisedRouteImport.update({
   id: '/uudised',
@@ -103,6 +107,11 @@ const ParoolUuestiTokenRoute = ParoolUuestiTokenRouteImport.update({
   path: '/parool-uuesti/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KontoSoovinimekiriRoute = KontoSoovinimekiriRouteImport.update({
+  id: '/soovinimekiri',
+  path: '/soovinimekiri',
+  getParentRoute: () => KontoRoute,
+} as any)
 const KontoProfiilRoute = KontoProfiilRouteImport.update({
   id: '/profiil',
   path: '/profiil',
@@ -113,9 +122,24 @@ const KontoTellimusedIndexRoute = KontoTellimusedIndexRouteImport.update({
   path: '/tellimused/',
   getParentRoute: () => KontoRoute,
 } as any)
+const KontoAadressidIndexRoute = KontoAadressidIndexRouteImport.update({
+  id: '/aadressid/',
+  path: '/aadressid/',
+  getParentRoute: () => KontoRoute,
+} as any)
 const KontoTellimusedIdRoute = KontoTellimusedIdRouteImport.update({
   id: '/tellimused/$id',
   path: '/tellimused/$id',
+  getParentRoute: () => KontoRoute,
+} as any)
+const KontoAadressidUusRoute = KontoAadressidUusRouteImport.update({
+  id: '/aadressid/uus',
+  path: '/aadressid/uus',
+  getParentRoute: () => KontoRoute,
+} as any)
+const KontoAadressidIdRoute = KontoAadressidIdRouteImport.update({
+  id: '/aadressid/$id',
+  path: '/aadressid/$id',
   getParentRoute: () => KontoRoute,
 } as any)
 
@@ -133,10 +157,14 @@ export interface FileRoutesByFullPath {
   '/pood': typeof PoodRoute
   '/uudised': typeof UudisedRoute
   '/konto/profiil': typeof KontoProfiilRoute
+  '/konto/soovinimekiri': typeof KontoSoovinimekiriRoute
   '/parool-uuesti/$token': typeof ParoolUuestiTokenRoute
   '/toode/$urlKey': typeof ToodeUrlKeyRoute
   '/konto/': typeof KontoIndexRoute
+  '/konto/aadressid/$id': typeof KontoAadressidIdRoute
+  '/konto/aadressid/uus': typeof KontoAadressidUusRoute
   '/konto/tellimused/$id': typeof KontoTellimusedIdRoute
+  '/konto/aadressid/': typeof KontoAadressidIndexRoute
   '/konto/tellimused/': typeof KontoTellimusedIndexRoute
 }
 export interface FileRoutesByTo {
@@ -152,10 +180,14 @@ export interface FileRoutesByTo {
   '/pood': typeof PoodRoute
   '/uudised': typeof UudisedRoute
   '/konto/profiil': typeof KontoProfiilRoute
+  '/konto/soovinimekiri': typeof KontoSoovinimekiriRoute
   '/parool-uuesti/$token': typeof ParoolUuestiTokenRoute
   '/toode/$urlKey': typeof ToodeUrlKeyRoute
   '/konto': typeof KontoIndexRoute
+  '/konto/aadressid/$id': typeof KontoAadressidIdRoute
+  '/konto/aadressid/uus': typeof KontoAadressidUusRoute
   '/konto/tellimused/$id': typeof KontoTellimusedIdRoute
+  '/konto/aadressid': typeof KontoAadressidIndexRoute
   '/konto/tellimused': typeof KontoTellimusedIndexRoute
 }
 export interface FileRoutesById {
@@ -173,10 +205,14 @@ export interface FileRoutesById {
   '/pood': typeof PoodRoute
   '/uudised': typeof UudisedRoute
   '/konto/profiil': typeof KontoProfiilRoute
+  '/konto/soovinimekiri': typeof KontoSoovinimekiriRoute
   '/parool-uuesti/$token': typeof ParoolUuestiTokenRoute
   '/toode/$urlKey': typeof ToodeUrlKeyRoute
   '/konto/': typeof KontoIndexRoute
+  '/konto/aadressid/$id': typeof KontoAadressidIdRoute
+  '/konto/aadressid/uus': typeof KontoAadressidUusRoute
   '/konto/tellimused/$id': typeof KontoTellimusedIdRoute
+  '/konto/aadressid/': typeof KontoAadressidIndexRoute
   '/konto/tellimused/': typeof KontoTellimusedIndexRoute
 }
 export interface FileRouteTypes {
@@ -195,10 +231,14 @@ export interface FileRouteTypes {
     | '/pood'
     | '/uudised'
     | '/konto/profiil'
+    | '/konto/soovinimekiri'
     | '/parool-uuesti/$token'
     | '/toode/$urlKey'
     | '/konto/'
+    | '/konto/aadressid/$id'
+    | '/konto/aadressid/uus'
     | '/konto/tellimused/$id'
+    | '/konto/aadressid/'
     | '/konto/tellimused/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -214,10 +254,14 @@ export interface FileRouteTypes {
     | '/pood'
     | '/uudised'
     | '/konto/profiil'
+    | '/konto/soovinimekiri'
     | '/parool-uuesti/$token'
     | '/toode/$urlKey'
     | '/konto'
+    | '/konto/aadressid/$id'
+    | '/konto/aadressid/uus'
     | '/konto/tellimused/$id'
+    | '/konto/aadressid'
     | '/konto/tellimused'
   id:
     | '__root__'
@@ -234,10 +278,14 @@ export interface FileRouteTypes {
     | '/pood'
     | '/uudised'
     | '/konto/profiil'
+    | '/konto/soovinimekiri'
     | '/parool-uuesti/$token'
     | '/toode/$urlKey'
     | '/konto/'
+    | '/konto/aadressid/$id'
+    | '/konto/aadressid/uus'
     | '/konto/tellimused/$id'
+    | '/konto/aadressid/'
     | '/konto/tellimused/'
   fileRoutesById: FileRoutesById
 }
@@ -365,6 +413,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ParoolUuestiTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/konto/soovinimekiri': {
+      id: '/konto/soovinimekiri'
+      path: '/soovinimekiri'
+      fullPath: '/konto/soovinimekiri'
+      preLoaderRoute: typeof KontoSoovinimekiriRouteImport
+      parentRoute: typeof KontoRoute
+    }
     '/konto/profiil': {
       id: '/konto/profiil'
       path: '/profiil'
@@ -379,6 +434,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KontoTellimusedIndexRouteImport
       parentRoute: typeof KontoRoute
     }
+    '/konto/aadressid/': {
+      id: '/konto/aadressid/'
+      path: '/aadressid'
+      fullPath: '/konto/aadressid/'
+      preLoaderRoute: typeof KontoAadressidIndexRouteImport
+      parentRoute: typeof KontoRoute
+    }
     '/konto/tellimused/$id': {
       id: '/konto/tellimused/$id'
       path: '/tellimused/$id'
@@ -386,20 +448,42 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KontoTellimusedIdRouteImport
       parentRoute: typeof KontoRoute
     }
+    '/konto/aadressid/uus': {
+      id: '/konto/aadressid/uus'
+      path: '/aadressid/uus'
+      fullPath: '/konto/aadressid/uus'
+      preLoaderRoute: typeof KontoAadressidUusRouteImport
+      parentRoute: typeof KontoRoute
+    }
+    '/konto/aadressid/$id': {
+      id: '/konto/aadressid/$id'
+      path: '/aadressid/$id'
+      fullPath: '/konto/aadressid/$id'
+      preLoaderRoute: typeof KontoAadressidIdRouteImport
+      parentRoute: typeof KontoRoute
+    }
   }
 }
 
 interface KontoRouteChildren {
   KontoProfiilRoute: typeof KontoProfiilRoute
+  KontoSoovinimekiriRoute: typeof KontoSoovinimekiriRoute
   KontoIndexRoute: typeof KontoIndexRoute
+  KontoAadressidIdRoute: typeof KontoAadressidIdRoute
+  KontoAadressidUusRoute: typeof KontoAadressidUusRoute
   KontoTellimusedIdRoute: typeof KontoTellimusedIdRoute
+  KontoAadressidIndexRoute: typeof KontoAadressidIndexRoute
   KontoTellimusedIndexRoute: typeof KontoTellimusedIndexRoute
 }
 
 const KontoRouteChildren: KontoRouteChildren = {
   KontoProfiilRoute: KontoProfiilRoute,
+  KontoSoovinimekiriRoute: KontoSoovinimekiriRoute,
   KontoIndexRoute: KontoIndexRoute,
+  KontoAadressidIdRoute: KontoAadressidIdRoute,
+  KontoAadressidUusRoute: KontoAadressidUusRoute,
   KontoTellimusedIdRoute: KontoTellimusedIdRoute,
+  KontoAadressidIndexRoute: KontoAadressidIndexRoute,
   KontoTellimusedIndexRoute: KontoTellimusedIndexRoute,
 }
 
@@ -424,3 +508,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
