@@ -204,8 +204,15 @@ function ProductPage() {
                 </p>
               )}
 
-              <div className="mt-6 flex items-baseline gap-3">
-                <div className="text-4xl font-bold text-primary">{product.formattedPrice}</div>
+              <div className="mt-6 flex items-baseline gap-3 flex-wrap">
+                {product.oldPrice && (
+                  <div className="text-2xl text-muted-foreground line-through">
+                    {product.oldPrice.toFixed(2).replace(".", ",")} €
+                  </div>
+                )}
+                <div className={`text-4xl font-bold ${product.oldPrice ? "text-primary" : "text-foreground"}`}>
+                  {product.formattedPrice}
+                </div>
                 <div className="text-sm text-muted-foreground">/ {product.amount}</div>
               </div>
 

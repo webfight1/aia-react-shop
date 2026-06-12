@@ -40,6 +40,8 @@ interface ApiProductDetail {
   url_key: string;
   price: string;
   formatted_price?: string;
+  regular_price?: string | number | null;
+  special_price?: string | number | null;
   short_description?: string | null;
   description?: string | null;
   in_stock?: boolean;
@@ -127,7 +129,13 @@ export async function fetchProductByUrlKey(urlKey: string): Promise<ProductDetai
   const json = await res.json();
   const p: ApiProductDetail | undefined = Array.isArray(json?.data) ? json.data[0] : json?.data;
   if (!p) throw new Error("Toodet ei leitud");
-  const price = parseFloat(p.price) || 0;
+  const toNum = (v: string | number | null | undefined) =>
+    v == null ? NaN : typeof v === "number" ? v : parseFloat(v);
+  const regular = toNum(p.regular_price ?? p.price);
+  const special = toNum(p.special_price);
+  const hasDiscount = !isNaN(special) && special > 0 && !isNaN(regular) && special < regular;
+  const price = hasDiscount ? special : !isNaN(regular) ? regular : 0;
+  const oldPrice = hasDiscount ? regular : undefined;
   const images =
     p.images?.map((i: any) => i.original_image_url || i.url || i.large_image_url || i.medium_image_url || "").filter(Boolean) ?? [];
   const baseImage =
@@ -140,6 +148,7 @@ export async function fetchProductByUrlKey(urlKey: string): Promise<ProductDetai
     name: p.name,
     amount: "1 tk",
     price,
+    oldPrice,
     image: allImages[0],
     images: allImages,
     description: p.short_description ? htmlToText(p.short_description) : "",
