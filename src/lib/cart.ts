@@ -239,34 +239,58 @@ export interface PaymentMethod {
 }
 
 // Auth-aware checkout wrapper: picks guest vs customer endpoint based on login state.
+// If the customer endpoint returns 401 (stale/expired token), automatically falls back
+// to the guest endpoint with the cart token so checkout can still complete.
 async function checkoutApi(paths: { guest: string; customer: string }, options: RequestInit = {}): Promise<CartResponse> {
   const bearer = getAuthBearer();
+
+  const callGuest = async (): Promise<CartResponse> => {
+    const headers: Record<string, string> = {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      ...((options.headers as Record<string, string>) ?? {}),
+    };
+    const t = getToken();
+    if (t) headers["X-Cart-Token"] = t;
+    const res = await fetch(`${API_BASE}${paths.guest}`, { ...options, headers });
+    let json: CartResponse = {};
+    try { json = (await res.json()) as CartResponse; } catch { /* empty */ }
+    const newToken = json?.data?.cart_token;
+    if (newToken) setToken(newToken);
+    if (!res.ok) {
+      throw new CartApiError(json?.message ?? `Checkout request failed (${res.status})`, res.status, json?.errors);
+    }
+    return json;
+  };
+
+  if (!bearer) return callGuest();
+
   const headers: Record<string, string> = {
     Accept: "application/json",
     "Content-Type": "application/json",
+    Authorization: `Bearer ${bearer}`,
     ...((options.headers as Record<string, string>) ?? {}),
   };
-  let url: string;
-  if (bearer) {
-    headers.Authorization = `Bearer ${bearer}`;
-    url = `${API_BASE}${paths.customer}`;
-  } else {
-    const t = getToken();
-    if (t) headers["X-Cart-Token"] = t;
-    url = `${API_BASE}${paths.guest}`;
-  }
-  const res = await fetch(url, { ...options, headers });
+  const res = await fetch(`${API_BASE}${paths.customer}`, { ...options, headers });
   let json: CartResponse = {};
   try { json = (await res.json()) as CartResponse; } catch { /* empty */ }
-  if (!bearer) {
-    const newToken = json?.data?.cart_token;
-    if (newToken) setToken(newToken);
+
+  // Stale customer session — clear auth and retry as guest so checkout continues.
+  if (res.status === 401) {
+    try {
+      localStorage.removeItem("aiamaailm_auth_token");
+      localStorage.removeItem("aiamaailm_user");
+      window.dispatchEvent(new Event("auth:changed"));
+    } catch { /* ignore */ }
+    return callGuest();
   }
+
   if (!res.ok) {
     throw new CartApiError(json?.message ?? `Checkout request failed (${res.status})`, res.status, json?.errors);
   }
   return json;
 }
+
 
 const CHECKOUT_PATHS = {
   saveAddress:     { guest: "/api/v1/guest/checkout/addresses",        customer: "/api/v1/customer/checkout/save-address" },
