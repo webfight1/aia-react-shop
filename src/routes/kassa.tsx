@@ -447,6 +447,7 @@ function CheckoutPage() {
                         </>
                       )}
                     </div>
+                    )}
                     <div className="flex justify-end pt-2">
                       <Button type="submit" disabled={submitting}>
                         {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
