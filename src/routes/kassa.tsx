@@ -237,6 +237,21 @@ function CheckoutPage() {
   const submitAddress = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
+
+    // Logged-in: use saved address by ID
+    if (isAuthenticated && savedAddressId !== null && savedAddressId !== "new") {
+      setSubmitting(true);
+      try {
+        await saveCheckoutAddresses({ address_id: savedAddressId }, { address_id: savedAddressId });
+        setStep(2);
+      } catch (e) {
+        handleApiError(e, "Aadressi salvestamine ebaõnnestus");
+      } finally {
+        setSubmitting(false);
+      }
+      return;
+    }
+
     const hasCompany = !!form.company_name.trim();
     const required: Array<keyof FormState> = hasCompany
       ? ["first_name", "last_name", "email", "phone", "address", "city", "postcode"]
