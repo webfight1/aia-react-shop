@@ -33,6 +33,10 @@ export function clearCartToken() {
   setToken(null);
 }
 
+export function getCartToken(): string | null {
+  return getToken();
+}
+
 export interface BagistoImage {
   small_image_url?: string;
   medium_image_url?: string;

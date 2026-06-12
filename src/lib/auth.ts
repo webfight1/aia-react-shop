@@ -74,8 +74,6 @@ async function authApi<T = unknown>(path: string, opts: RequestInit = {}): Promi
   try { json = await res.json(); } catch { /* empty */ }
 
   if (res.status === 401 && token) {
-    // Only clear auth for endpoints that explicitly validate the session.
-    // Background/best-effort calls (e.g. cart sync) shouldn't kick the user out.
     const isAuthCritical = path.includes("/customer/get") || path.includes("/customer/profile");
     if (isAuthCritical) clearAuth();
     throw new AuthApiError("Sessioon on aegunud", 401);
@@ -104,15 +102,27 @@ interface AuthResponse {
   token?: string;
   data?: AuthUser;
   message?: string;
+  cart_merged?: boolean;
+}
+
+export interface LoginResult {
+  user: AuthUser;
+  cartMerged: boolean;
 }
 
 export async function login(input: LoginInput): Promise<AuthUser> {
+  // Lazy import to avoid circular dep with cart.ts
+  const { getCartToken, clearCartToken } = await import("@/lib/cart");
+  const cartToken = getCartToken();
   const res = await authApi<AuthResponse>("/api/v1/customer/login", {
     method: "POST",
+    headers: cartToken ? { "X-Cart-Token": cartToken } : undefined,
     body: JSON.stringify({ ...input, device_name: "browser" }),
   });
   if (!res.token || !res.data) throw new AuthApiError("Sisselogimine ebaõnnestus", 500);
   setAuth(res.token, res.data);
+  // Server side bound the guest cart to the customer; drop the guest token.
+  if (cartToken) clearCartToken();
   return res.data;
 }
 
