@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as UudisedRouteImport } from './routes/uudised'
 import { Route as PoodRouteImport } from './routes/pood'
 import { Route as ParooliUnustasinRouteImport } from './routes/parooli-unustasin'
+import { Route as OtsingRouteImport } from './routes/otsing'
 import { Route as OstukorvRouteImport } from './routes/ostukorv'
 import { Route as MuugitingimusedRouteImport } from './routes/muugitingimused'
 import { Route as LoginRouteImport } from './routes/login'
@@ -45,6 +46,11 @@ const PoodRoute = PoodRouteImport.update({
 const ParooliUnustasinRoute = ParooliUnustasinRouteImport.update({
   id: '/parooli-unustasin',
   path: '/parooli-unustasin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OtsingRoute = OtsingRouteImport.update({
+  id: '/otsing',
+  path: '/otsing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OstukorvRoute = OstukorvRouteImport.update({
@@ -153,6 +159,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/muugitingimused': typeof MuugitingimusedRoute
   '/ostukorv': typeof OstukorvRoute
+  '/otsing': typeof OtsingRoute
   '/parooli-unustasin': typeof ParooliUnustasinRoute
   '/pood': typeof PoodRoute
   '/uudised': typeof UudisedRoute
@@ -176,6 +183,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/muugitingimused': typeof MuugitingimusedRoute
   '/ostukorv': typeof OstukorvRoute
+  '/otsing': typeof OtsingRoute
   '/parooli-unustasin': typeof ParooliUnustasinRoute
   '/pood': typeof PoodRoute
   '/uudised': typeof UudisedRoute
@@ -201,6 +209,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/muugitingimused': typeof MuugitingimusedRoute
   '/ostukorv': typeof OstukorvRoute
+  '/otsing': typeof OtsingRoute
   '/parooli-unustasin': typeof ParooliUnustasinRoute
   '/pood': typeof PoodRoute
   '/uudised': typeof UudisedRoute
@@ -227,6 +236,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/muugitingimused'
     | '/ostukorv'
+    | '/otsing'
     | '/parooli-unustasin'
     | '/pood'
     | '/uudised'
@@ -250,6 +260,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/muugitingimused'
     | '/ostukorv'
+    | '/otsing'
     | '/parooli-unustasin'
     | '/pood'
     | '/uudised'
@@ -274,6 +285,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/muugitingimused'
     | '/ostukorv'
+    | '/otsing'
     | '/parooli-unustasin'
     | '/pood'
     | '/uudised'
@@ -299,6 +311,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MuugitingimusedRoute: typeof MuugitingimusedRoute
   OstukorvRoute: typeof OstukorvRoute
+  OtsingRoute: typeof OtsingRoute
   ParooliUnustasinRoute: typeof ParooliUnustasinRoute
   PoodRoute: typeof PoodRoute
   UudisedRoute: typeof UudisedRoute
@@ -327,6 +340,13 @@ declare module '@tanstack/react-router' {
       path: '/parooli-unustasin'
       fullPath: '/parooli-unustasin'
       preLoaderRoute: typeof ParooliUnustasinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/otsing': {
+      id: '/otsing'
+      path: '/otsing'
+      fullPath: '/otsing'
+      preLoaderRoute: typeof OtsingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ostukorv': {
@@ -499,6 +519,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MuugitingimusedRoute: MuugitingimusedRoute,
   OstukorvRoute: OstukorvRoute,
+  OtsingRoute: OtsingRoute,
   ParooliUnustasinRoute: ParooliUnustasinRoute,
   PoodRoute: PoodRoute,
   UudisedRoute: UudisedRoute,
