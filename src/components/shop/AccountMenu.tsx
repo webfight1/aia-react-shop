@@ -11,8 +11,16 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 
 export function AccountMenu() {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, isReady, logout } = useAuth();
   const navigate = useNavigate();
+
+  if (!isReady) {
+    return (
+      <span className="hidden lg:flex items-center gap-1.5 text-muted-foreground">
+        <LogIn className="h-4 w-4" /> Sisene
+      </span>
+    );
+  }
 
   if (!isAuthenticated || !user) {
     return (
