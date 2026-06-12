@@ -34,8 +34,8 @@ function WishlistPage() {
     } finally { setBusyId(null); }
   };
 
-  const onMoveToCart = async (productId: number) => {
-    setBusyId(productId);
+  const onMoveToCart = async (wishlistItemId: number) => {
+    setBusyId(wishlistItemId);
     try {
       await moveWishlistToCart(productId);
       toast.success("Lisatud ostukorvi");
