@@ -74,8 +74,6 @@ async function authApi<T = unknown>(path: string, opts: RequestInit = {}): Promi
   try { json = await res.json(); } catch { /* empty */ }
 
   if (res.status === 401 && token) {
-    // Only clear auth for endpoints that explicitly validate the session.
-    // Background/best-effort calls (e.g. cart sync) shouldn't kick the user out.
     const isAuthCritical = path.includes("/customer/get") || path.includes("/customer/profile");
     if (isAuthCritical) clearAuth();
     throw new AuthApiError("Sessioon on aegunud", 401);
