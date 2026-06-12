@@ -83,6 +83,9 @@ export function AddressForm({ title, initial, onSubmit }: Props) {
         <Field label="KMKR (valikuline)" err={errMsg("vat_id")}>
           <Input value={form.vat_id ?? ""} onChange={(e) => set("vat_id", e.target.value)} />
         </Field>
+        <Field label="E-post *" err={errMsg("email")}>
+          <Input type="email" value={form.email ?? ""} onChange={(e) => set("email", e.target.value)} required />
+        </Field>
         <Field label="Telefon *" err={errMsg("phone")}>
           <Input value={form.phone} onChange={(e) => set("phone", e.target.value)} required />
         </Field>
