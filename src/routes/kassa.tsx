@@ -306,7 +306,6 @@ function CheckoutPage() {
       return;
     }
 
-
     const hasCompany = !!form.company_name.trim();
     const required: Array<keyof FormState> = hasCompany
       ? ["first_name", "last_name", "email", "phone", "address", "city", "postcode"]
@@ -376,7 +375,10 @@ function CheckoutPage() {
         if (recoveredOrder) {
           clearCartToken();
           queryClient.setQueryData(["cart"], null);
-          navigate({ to: "/aitah", search: { id: recoveredOrder.increment_id ?? String(recoveredOrder.id) } });
+          navigate({
+            to: "/aitah",
+            search: { id: recoveredOrder.increment_id ?? String(recoveredOrder.id) },
+          });
           return;
         }
       }
