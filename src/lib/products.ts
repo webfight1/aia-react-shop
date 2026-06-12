@@ -23,8 +23,9 @@ export interface ApiProduct {
   id: number;
   name: string;
   sku: string;
-  price: string;
-  special_price: string | null;
+  price: string | number;
+  special_price: string | number | null;
+  regular_price?: string | number | null;
   url_key: string;
   short_description?: string | null;
   image: string;
