@@ -84,11 +84,15 @@ function htmlToText(html: string): string {
 export function mapApiProduct(p: ApiProduct): Product {
   const toNum = (v: string | number | null | undefined) =>
     v == null ? NaN : typeof v === "number" ? v : parseFloat(v);
-  const regular = toNum(p.regular_price ?? p.price);
+  // Backend returns group-aware `price` (current price for this customer).
+  // `regular_price` is the un-discounted base price. `special_price` may also
+  // be set for catalog specials. Effective price = lowest of (price, special).
+  const base = toNum(p.price);
+  const regular = toNum(p.regular_price);
   const special = toNum(p.special_price);
-  const hasDiscount = !isNaN(special) && special > 0 && !isNaN(regular) && special < regular;
-  const price = hasDiscount ? special : !isNaN(regular) ? regular : 0;
-  const oldPrice = hasDiscount ? regular : undefined;
+  const candidates = [base, special].filter((n) => !isNaN(n) && n > 0);
+  const price = candidates.length ? Math.min(...candidates) : !isNaN(regular) ? regular : 0;
+  const oldPrice = !isNaN(regular) && regular > price + 0.0001 ? regular : undefined;
   const image = p.image ? `${API_BASE}${p.image}` : FALLBACK_IMG;
   const description = p.short_description
     ? htmlToText(p.short_description)
@@ -105,6 +109,13 @@ export function mapApiProduct(p: ApiProduct): Product {
     featured: p.featured ?? false,
     isNew: p.new ?? false,
   };
+}
+
+function authedFetch(url: string): Promise<Response> {
+  const token = getAuthToken();
+  const headers: Record<string, string> = { Accept: "application/json" };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return fetch(url, { headers });
 }
 
 export async function fetchProducts(slug: string = DEFAULT_CATEGORY_SLUG): Promise<Product[]> {
