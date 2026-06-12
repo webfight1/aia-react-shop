@@ -328,27 +328,27 @@ export interface WishlistItem {
 }
 
 export async function getWishlist(): Promise<WishlistItem[]> {
-  const res = await authApi<{ data: WishlistItem[] }>("/api/customer/wishlist", { method: "GET" });
+  const res = await authApi<{ data: WishlistItem[] }>("/api/v1/customer/wishlist", { method: "GET" });
   return res.data ?? [];
 }
 
 export async function addToWishlist(productId: number | string): Promise<void> {
-  await authApi("/api/customer/wishlist", {
+  await authApi("/api/v1/customer/wishlist", {
     method: "POST",
     body: JSON.stringify({ product_id: Number(productId) }),
   });
 }
 
 export async function removeFromWishlist(productId: number | string): Promise<void> {
-  await authApi(`/api/customer/wishlist/${productId}`, { method: "DELETE" });
+  await authApi(`/api/v1/customer/wishlist/${productId}`, { method: "DELETE" });
 }
 
 export async function clearWishlist(): Promise<void> {
-  await authApi("/api/customer/wishlist/all", { method: "DELETE" });
+  await authApi("/api/v1/customer/wishlist/all", { method: "DELETE" });
 }
 
 export async function moveWishlistToCart(productId: number | string): Promise<void> {
-  await authApi(`/api/customer/wishlist/${productId}/move-to-cart`, { method: "POST" });
+  await authApi(`/api/v1/customer/wishlist/${productId}/move-to-cart`, { method: "POST" });
 }
 
 // -------- Customer cart sync (after login) --------
