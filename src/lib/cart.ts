@@ -1,8 +1,14 @@
-// Bagisto guest cart API client with cart_token support.
-// Token-based (no cookies). Token rotates on every response — always store the latest.
+// Bagisto cart API client.
+// Guest: cart_token header. Customer (logged in): Bearer token from auth.
+import { AUTH_TOKEN_KEY } from "@/lib/auth";
 
 const API_BASE = "https://aiamaailm.webfight.shop";
 const TOKEN_KEY = "aiamaailm_cart_token";
+
+function getAuthBearer(): string | null {
+  if (typeof window === "undefined") return null;
+  try { return localStorage.getItem(AUTH_TOKEN_KEY); } catch { return null; }
+}
 
 function getToken(): string | null {
   if (typeof window === "undefined") return null;
@@ -232,20 +238,59 @@ export interface PaymentMethod {
   description?: string;
 }
 
-export async function saveCheckoutAddresses(billing: CheckoutAddress, shipping?: CheckoutAddress) {
-  const body = {
-    billing: { ...billing, use_for_shipping: shipping ? false : true },
-    shipping: shipping ?? billing,
+// Auth-aware checkout wrapper: picks guest vs customer endpoint based on login state.
+async function checkoutApi(paths: { guest: string; customer: string }, options: RequestInit = {}): Promise<CartResponse> {
+  const bearer = getAuthBearer();
+  const headers: Record<string, string> = {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+    ...((options.headers as Record<string, string>) ?? {}),
   };
-  const res = await cartApi("/checkout/addresses", {
-    method: "POST",
-    body: JSON.stringify(body),
-  });
+  let url: string;
+  if (bearer) {
+    headers.Authorization = `Bearer ${bearer}`;
+    url = `${API_BASE}${paths.customer}`;
+  } else {
+    const t = getToken();
+    if (t) headers["X-Cart-Token"] = t;
+    url = `${API_BASE}${paths.guest}`;
+  }
+  const res = await fetch(url, { ...options, headers });
+  let json: CartResponse = {};
+  try { json = (await res.json()) as CartResponse; } catch { /* empty */ }
+  if (!bearer) {
+    const newToken = json?.data?.cart_token;
+    if (newToken) setToken(newToken);
+  }
+  if (!res.ok) {
+    throw new CartApiError(json?.message ?? `Checkout request failed (${res.status})`, res.status, json?.errors);
+  }
+  return json;
+}
+
+const CHECKOUT_PATHS = {
+  saveAddress:     { guest: "/api/v1/guest/checkout/addresses",        customer: "/api/v1/customer/checkout/save-address" },
+  saveShipping:    { guest: "/api/v1/guest/checkout/shipping-method",  customer: "/api/v1/customer/checkout/save-shipping" },
+  savePayment:     { guest: "/api/v1/guest/checkout/payment-method",   customer: "/api/v1/customer/checkout/save-payment" },
+  placeOrder:      { guest: "/api/v1/guest/checkout/place-order",      customer: "/api/v1/customer/checkout/save-order" },
+  shippingMethods: { guest: "/api/v1/guest/checkout/shipping-methods", customer: "/api/v1/customer/checkout/shipping-methods" },
+  paymentMethods:  { guest: "/api/v1/guest/checkout/payment-methods",  customer: "/api/v1/customer/checkout/payment-methods" },
+};
+
+export interface CustomerAddressRef { address_id: number }
+
+export async function saveCheckoutAddresses(
+  billing: CheckoutAddress | CustomerAddressRef,
+  shipping?: CheckoutAddress | CustomerAddressRef,
+) {
+  const billingBody = "address_id" in billing ? billing : { ...billing, use_for_shipping: shipping ? false : true };
+  const body = { billing: billingBody, shipping: shipping ?? billing };
+  const res = await checkoutApi(CHECKOUT_PATHS.saveAddress, { method: "POST", body: JSON.stringify(body) });
   return res.data ?? null;
 }
 
 export async function getShippingMethods(): Promise<Record<string, { carrier_title?: string; rates: ShippingRate[] }>> {
-  const res = await cartApi("/checkout/shipping-methods", { method: "GET" });
+  const res = await checkoutApi(CHECKOUT_PATHS.shippingMethods, { method: "GET" });
   const d = res.data as { shipping_rates?: { shippingMethods?: Record<string, { carrier_title?: string; rates: ShippingRate[] }> } } | undefined;
   return d?.shipping_rates?.shippingMethods ?? {};
 }
@@ -265,7 +310,7 @@ export async function saveShippingMethod(
 ) {
   const body: Record<string, unknown> = { shipping_method };
   if (parcel_locker) body.parcel_locker = parcel_locker;
-  const res = await cartApi("/checkout/shipping-method", {
+  const res = await checkoutApi(CHECKOUT_PATHS.saveShipping, {
     method: "POST",
     body: JSON.stringify(body),
   });
@@ -360,7 +405,7 @@ export function detectParcelCarrier(method: string): ParcelCarrier | null {
 }
 
 export async function getPaymentMethods(): Promise<PaymentMethod[]> {
-  const res = await cartApi("/checkout/payment-methods", { method: "GET" });
+  const res = await checkoutApi(CHECKOUT_PATHS.paymentMethods, { method: "GET" });
   const d = res.data as { payment_methods?: { payment_methods?: PaymentMethod[] } | PaymentMethod[] } | undefined;
   const pm = d?.payment_methods;
   if (Array.isArray(pm)) return pm;
@@ -368,7 +413,7 @@ export async function getPaymentMethods(): Promise<PaymentMethod[]> {
 }
 
 export async function savePaymentMethod(method: string) {
-  const res = await cartApi("/checkout/payment-method", {
+  const res = await checkoutApi(CHECKOUT_PATHS.savePayment, {
     method: "POST",
     body: JSON.stringify({ payment: { method } }),
   });
@@ -381,7 +426,7 @@ export interface PlaceOrderResult {
 }
 
 export async function placeOrder(): Promise<PlaceOrderResult> {
-  const res = await cartApi("/checkout/place-order", {
+  const res = await checkoutApi(CHECKOUT_PATHS.placeOrder, {
     method: "POST",
     body: JSON.stringify({}),
   });

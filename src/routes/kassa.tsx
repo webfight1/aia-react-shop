@@ -26,6 +26,8 @@ import {
   type ParcelLocker,
   type ShippingRate,
 } from "@/lib/cart";
+import { useAuth } from "@/hooks/useAuth";
+import { getAddresses, type CustomerAddress } from "@/lib/auth";
 
 export const Route = createFileRoute("/kassa")({
   head: () => ({
@@ -114,6 +116,7 @@ function CheckoutPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { items, itemsCount, subtotal, isLoading } = useCart();
+  const { isAuthenticated, user } = useAuth();
   const sub = Number(subtotal) || 0;
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -124,6 +127,35 @@ function CheckoutPage() {
   const [selectedLocker, setSelectedLocker] = useState<ParcelLocker | null>(null);
   const [lockerQuery, setLockerQuery] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [savedAddressId, setSavedAddressId] = useState<number | "new" | null>(null);
+
+  // Saved addresses for logged-in users
+  const savedAddressesQuery = useQuery({
+    queryKey: ["konto", "addresses"],
+    queryFn: getAddresses,
+    enabled: isAuthenticated,
+  });
+  const savedAddresses = savedAddressesQuery.data ?? [];
+
+  // Auto-select default saved address on first load
+  useEffect(() => {
+    if (!isAuthenticated || savedAddressId !== null || savedAddresses.length === 0) return;
+    const def = savedAddresses.find((a) => a.default_address) ?? savedAddresses[0];
+    if (def?.id) setSavedAddressId(def.id);
+  }, [isAuthenticated, savedAddresses, savedAddressId]);
+
+  // Prefill email/name from logged-in user for new-address path
+  useEffect(() => {
+    if (user && !form.email) {
+      setForm((s) => ({
+        ...s,
+        first_name: s.first_name || user.first_name || "",
+        last_name: s.last_name || user.last_name || "",
+        email: s.email || user.email || "",
+        phone: s.phone || user.phone || "",
+      }));
+    }
+  }, [user, form.email]);
 
   const shippingQuery = useQuery({
     queryKey: ["checkout", "shipping-methods"],
@@ -205,6 +237,21 @@ function CheckoutPage() {
   const submitAddress = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
+
+    // Logged-in: use saved address by ID
+    if (isAuthenticated && savedAddressId !== null && savedAddressId !== "new") {
+      setSubmitting(true);
+      try {
+        await saveCheckoutAddresses({ address_id: savedAddressId }, { address_id: savedAddressId });
+        setStep(2);
+      } catch (e) {
+        handleApiError(e, "Aadressi salvestamine ebaõnnestus");
+      } finally {
+        setSubmitting(false);
+      }
+      return;
+    }
+
     const hasCompany = !!form.company_name.trim();
     const required: Array<keyof FormState> = hasCompany
       ? ["first_name", "last_name", "email", "phone", "address", "city", "postcode"]
@@ -295,6 +342,50 @@ function CheckoutPage() {
                 {step === 1 && (
                   <form onSubmit={submitAddress} className="space-y-4">
                     <h2 className="text-xl font-semibold">Aadress</h2>
+
+                    {isAuthenticated && savedAddresses.length > 0 && (
+                      <div className="space-y-2 rounded-lg border border-border bg-muted/30 p-3">
+                        <div className="text-sm font-medium">Vali salvestatud aadress</div>
+                        <div className="space-y-2">
+                          {savedAddresses.map((a: CustomerAddress) => {
+                            const id = a.id!;
+                            const addr = Array.isArray(a.address) ? a.address.join(", ") : a.address;
+                            const active = savedAddressId === id;
+                            return (
+                              <label
+                                key={id}
+                                className={`flex items-start gap-3 rounded-md border p-3 cursor-pointer transition ${active ? "border-primary bg-primary/5" : "border-border bg-background hover:bg-accent/40"}`}
+                              >
+                                <input
+                                  type="radio"
+                                  name="saved-addr"
+                                  className="mt-1"
+                                  checked={active}
+                                  onChange={() => setSavedAddressId(id)}
+                                />
+                                <div className="text-sm">
+                                  <div className="font-medium">{a.first_name} {a.last_name}{a.default_address ? " · vaikimisi" : ""}</div>
+                                  <div className="text-muted-foreground">{addr}, {a.postcode} {a.city}, {a.country}</div>
+                                </div>
+                              </label>
+                            );
+                          })}
+                          <label
+                            className={`flex items-center gap-3 rounded-md border p-3 cursor-pointer transition ${savedAddressId === "new" ? "border-primary bg-primary/5" : "border-border bg-background hover:bg-accent/40"}`}
+                          >
+                            <input
+                              type="radio"
+                              name="saved-addr"
+                              checked={savedAddressId === "new"}
+                              onChange={() => setSavedAddressId("new")}
+                            />
+                            <span className="text-sm font-medium">+ Sisesta uus aadress</span>
+                          </label>
+                        </div>
+                      </div>
+                    )}
+
+                    {(!isAuthenticated || savedAddressId === "new" || savedAddresses.length === 0) && (
                     <div className="grid sm:grid-cols-2 gap-4">
                       <Field label="Eesnimi *" err={errMsg("first_name")}>
                         <Input value={form.first_name} onChange={(e) => set("first_name", e.target.value)} />
@@ -356,6 +447,7 @@ function CheckoutPage() {
                         </>
                       )}
                     </div>
+                    )}
                     <div className="flex justify-end pt-2">
                       <Button type="submit" disabled={submitting}>
                         {submitting && <Loader2 className="h-4 w-4 animate-spin" />}

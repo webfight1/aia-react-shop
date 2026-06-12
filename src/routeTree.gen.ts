@@ -11,13 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UudisedRouteImport } from './routes/uudised'
 import { Route as PoodRouteImport } from './routes/pood'
+import { Route as ParooliUnustasinRouteImport } from './routes/parooli-unustasin'
 import { Route as OstukorvRouteImport } from './routes/ostukorv'
 import { Route as MuugitingimusedRouteImport } from './routes/muugitingimused'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as KontoRouteImport } from './routes/konto'
 import { Route as KontaktRouteImport } from './routes/kontakt'
 import { Route as KassaRouteImport } from './routes/kassa'
-import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as FirmastRouteImport } from './routes/firmast'
 import { Route as AitahRouteImport } from './routes/aitah'
 import { Route as IndexRouteImport } from './routes/index'
@@ -30,7 +30,7 @@ import { Route as KontoTellimusedIndexRouteImport } from './routes/konto.tellimu
 import { Route as KontoAadressidIndexRouteImport } from './routes/konto.aadressid.index'
 import { Route as KontoTellimusedIdRouteImport } from './routes/konto.tellimused.$id'
 import { Route as KontoAadressidUusRouteImport } from './routes/konto.aadressid.uus'
-import { Route as KontoAadressidIdRouteImport } from './routes/konto.aadressid.$id'
+import { Route as KontoAadressidIdMuudaRouteImport } from './routes/konto.aadressid.$id.muuda'
 
 const UudisedRoute = UudisedRouteImport.update({
   id: '/uudised',
@@ -40,6 +40,11 @@ const UudisedRoute = UudisedRouteImport.update({
 const PoodRoute = PoodRouteImport.update({
   id: '/pood',
   path: '/pood',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParooliUnustasinRoute = ParooliUnustasinRouteImport.update({
+  id: '/parooli-unustasin',
+  path: '/parooli-unustasin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OstukorvRoute = OstukorvRouteImport.update({
@@ -70,11 +75,6 @@ const KontaktRoute = KontaktRouteImport.update({
 const KassaRoute = KassaRouteImport.update({
   id: '/kassa',
   path: '/kassa',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
-  id: '/forgot-password',
-  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FirmastRoute = FirmastRouteImport.update({
@@ -137,9 +137,9 @@ const KontoAadressidUusRoute = KontoAadressidUusRouteImport.update({
   path: '/aadressid/uus',
   getParentRoute: () => KontoRoute,
 } as any)
-const KontoAadressidIdRoute = KontoAadressidIdRouteImport.update({
-  id: '/aadressid/$id',
-  path: '/aadressid/$id',
+const KontoAadressidIdMuudaRoute = KontoAadressidIdMuudaRouteImport.update({
+  id: '/aadressid/$id/muuda',
+  path: '/aadressid/$id/muuda',
   getParentRoute: () => KontoRoute,
 } as any)
 
@@ -147,13 +147,13 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/aitah': typeof AitahRoute
   '/firmast': typeof FirmastRoute
-  '/forgot-password': typeof ForgotPasswordRoute
   '/kassa': typeof KassaRoute
   '/kontakt': typeof KontaktRoute
   '/konto': typeof KontoRouteWithChildren
   '/login': typeof LoginRoute
   '/muugitingimused': typeof MuugitingimusedRoute
   '/ostukorv': typeof OstukorvRoute
+  '/parooli-unustasin': typeof ParooliUnustasinRoute
   '/pood': typeof PoodRoute
   '/uudised': typeof UudisedRoute
   '/konto/profiil': typeof KontoProfiilRoute
@@ -161,22 +161,22 @@ export interface FileRoutesByFullPath {
   '/parool-uuesti/$token': typeof ParoolUuestiTokenRoute
   '/toode/$urlKey': typeof ToodeUrlKeyRoute
   '/konto/': typeof KontoIndexRoute
-  '/konto/aadressid/$id': typeof KontoAadressidIdRoute
   '/konto/aadressid/uus': typeof KontoAadressidUusRoute
   '/konto/tellimused/$id': typeof KontoTellimusedIdRoute
   '/konto/aadressid/': typeof KontoAadressidIndexRoute
   '/konto/tellimused/': typeof KontoTellimusedIndexRoute
+  '/konto/aadressid/$id/muuda': typeof KontoAadressidIdMuudaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/aitah': typeof AitahRoute
   '/firmast': typeof FirmastRoute
-  '/forgot-password': typeof ForgotPasswordRoute
   '/kassa': typeof KassaRoute
   '/kontakt': typeof KontaktRoute
   '/login': typeof LoginRoute
   '/muugitingimused': typeof MuugitingimusedRoute
   '/ostukorv': typeof OstukorvRoute
+  '/parooli-unustasin': typeof ParooliUnustasinRoute
   '/pood': typeof PoodRoute
   '/uudised': typeof UudisedRoute
   '/konto/profiil': typeof KontoProfiilRoute
@@ -184,24 +184,24 @@ export interface FileRoutesByTo {
   '/parool-uuesti/$token': typeof ParoolUuestiTokenRoute
   '/toode/$urlKey': typeof ToodeUrlKeyRoute
   '/konto': typeof KontoIndexRoute
-  '/konto/aadressid/$id': typeof KontoAadressidIdRoute
   '/konto/aadressid/uus': typeof KontoAadressidUusRoute
   '/konto/tellimused/$id': typeof KontoTellimusedIdRoute
   '/konto/aadressid': typeof KontoAadressidIndexRoute
   '/konto/tellimused': typeof KontoTellimusedIndexRoute
+  '/konto/aadressid/$id/muuda': typeof KontoAadressidIdMuudaRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/aitah': typeof AitahRoute
   '/firmast': typeof FirmastRoute
-  '/forgot-password': typeof ForgotPasswordRoute
   '/kassa': typeof KassaRoute
   '/kontakt': typeof KontaktRoute
   '/konto': typeof KontoRouteWithChildren
   '/login': typeof LoginRoute
   '/muugitingimused': typeof MuugitingimusedRoute
   '/ostukorv': typeof OstukorvRoute
+  '/parooli-unustasin': typeof ParooliUnustasinRoute
   '/pood': typeof PoodRoute
   '/uudised': typeof UudisedRoute
   '/konto/profiil': typeof KontoProfiilRoute
@@ -209,11 +209,11 @@ export interface FileRoutesById {
   '/parool-uuesti/$token': typeof ParoolUuestiTokenRoute
   '/toode/$urlKey': typeof ToodeUrlKeyRoute
   '/konto/': typeof KontoIndexRoute
-  '/konto/aadressid/$id': typeof KontoAadressidIdRoute
   '/konto/aadressid/uus': typeof KontoAadressidUusRoute
   '/konto/tellimused/$id': typeof KontoTellimusedIdRoute
   '/konto/aadressid/': typeof KontoAadressidIndexRoute
   '/konto/tellimused/': typeof KontoTellimusedIndexRoute
+  '/konto/aadressid/$id/muuda': typeof KontoAadressidIdMuudaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -221,13 +221,13 @@ export interface FileRouteTypes {
     | '/'
     | '/aitah'
     | '/firmast'
-    | '/forgot-password'
     | '/kassa'
     | '/kontakt'
     | '/konto'
     | '/login'
     | '/muugitingimused'
     | '/ostukorv'
+    | '/parooli-unustasin'
     | '/pood'
     | '/uudised'
     | '/konto/profiil'
@@ -235,22 +235,22 @@ export interface FileRouteTypes {
     | '/parool-uuesti/$token'
     | '/toode/$urlKey'
     | '/konto/'
-    | '/konto/aadressid/$id'
     | '/konto/aadressid/uus'
     | '/konto/tellimused/$id'
     | '/konto/aadressid/'
     | '/konto/tellimused/'
+    | '/konto/aadressid/$id/muuda'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/aitah'
     | '/firmast'
-    | '/forgot-password'
     | '/kassa'
     | '/kontakt'
     | '/login'
     | '/muugitingimused'
     | '/ostukorv'
+    | '/parooli-unustasin'
     | '/pood'
     | '/uudised'
     | '/konto/profiil'
@@ -258,23 +258,23 @@ export interface FileRouteTypes {
     | '/parool-uuesti/$token'
     | '/toode/$urlKey'
     | '/konto'
-    | '/konto/aadressid/$id'
     | '/konto/aadressid/uus'
     | '/konto/tellimused/$id'
     | '/konto/aadressid'
     | '/konto/tellimused'
+    | '/konto/aadressid/$id/muuda'
   id:
     | '__root__'
     | '/'
     | '/aitah'
     | '/firmast'
-    | '/forgot-password'
     | '/kassa'
     | '/kontakt'
     | '/konto'
     | '/login'
     | '/muugitingimused'
     | '/ostukorv'
+    | '/parooli-unustasin'
     | '/pood'
     | '/uudised'
     | '/konto/profiil'
@@ -282,24 +282,24 @@ export interface FileRouteTypes {
     | '/parool-uuesti/$token'
     | '/toode/$urlKey'
     | '/konto/'
-    | '/konto/aadressid/$id'
     | '/konto/aadressid/uus'
     | '/konto/tellimused/$id'
     | '/konto/aadressid/'
     | '/konto/tellimused/'
+    | '/konto/aadressid/$id/muuda'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AitahRoute: typeof AitahRoute
   FirmastRoute: typeof FirmastRoute
-  ForgotPasswordRoute: typeof ForgotPasswordRoute
   KassaRoute: typeof KassaRoute
   KontaktRoute: typeof KontaktRoute
   KontoRoute: typeof KontoRouteWithChildren
   LoginRoute: typeof LoginRoute
   MuugitingimusedRoute: typeof MuugitingimusedRoute
   OstukorvRoute: typeof OstukorvRoute
+  ParooliUnustasinRoute: typeof ParooliUnustasinRoute
   PoodRoute: typeof PoodRoute
   UudisedRoute: typeof UudisedRoute
   ParoolUuestiTokenRoute: typeof ParoolUuestiTokenRoute
@@ -320,6 +320,13 @@ declare module '@tanstack/react-router' {
       path: '/pood'
       fullPath: '/pood'
       preLoaderRoute: typeof PoodRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parooli-unustasin': {
+      id: '/parooli-unustasin'
+      path: '/parooli-unustasin'
+      fullPath: '/parooli-unustasin'
+      preLoaderRoute: typeof ParooliUnustasinRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ostukorv': {
@@ -362,13 +369,6 @@ declare module '@tanstack/react-router' {
       path: '/kassa'
       fullPath: '/kassa'
       preLoaderRoute: typeof KassaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/forgot-password': {
-      id: '/forgot-password'
-      path: '/forgot-password'
-      fullPath: '/forgot-password'
-      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/firmast': {
@@ -455,11 +455,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KontoAadressidUusRouteImport
       parentRoute: typeof KontoRoute
     }
-    '/konto/aadressid/$id': {
-      id: '/konto/aadressid/$id'
-      path: '/aadressid/$id'
-      fullPath: '/konto/aadressid/$id'
-      preLoaderRoute: typeof KontoAadressidIdRouteImport
+    '/konto/aadressid/$id/muuda': {
+      id: '/konto/aadressid/$id/muuda'
+      path: '/aadressid/$id/muuda'
+      fullPath: '/konto/aadressid/$id/muuda'
+      preLoaderRoute: typeof KontoAadressidIdMuudaRouteImport
       parentRoute: typeof KontoRoute
     }
   }
@@ -469,22 +469,22 @@ interface KontoRouteChildren {
   KontoProfiilRoute: typeof KontoProfiilRoute
   KontoSoovinimekiriRoute: typeof KontoSoovinimekiriRoute
   KontoIndexRoute: typeof KontoIndexRoute
-  KontoAadressidIdRoute: typeof KontoAadressidIdRoute
   KontoAadressidUusRoute: typeof KontoAadressidUusRoute
   KontoTellimusedIdRoute: typeof KontoTellimusedIdRoute
   KontoAadressidIndexRoute: typeof KontoAadressidIndexRoute
   KontoTellimusedIndexRoute: typeof KontoTellimusedIndexRoute
+  KontoAadressidIdMuudaRoute: typeof KontoAadressidIdMuudaRoute
 }
 
 const KontoRouteChildren: KontoRouteChildren = {
   KontoProfiilRoute: KontoProfiilRoute,
   KontoSoovinimekiriRoute: KontoSoovinimekiriRoute,
   KontoIndexRoute: KontoIndexRoute,
-  KontoAadressidIdRoute: KontoAadressidIdRoute,
   KontoAadressidUusRoute: KontoAadressidUusRoute,
   KontoTellimusedIdRoute: KontoTellimusedIdRoute,
   KontoAadressidIndexRoute: KontoAadressidIndexRoute,
   KontoTellimusedIndexRoute: KontoTellimusedIndexRoute,
+  KontoAadressidIdMuudaRoute: KontoAadressidIdMuudaRoute,
 }
 
 const KontoRouteWithChildren = KontoRoute._addFileChildren(KontoRouteChildren)
@@ -493,13 +493,13 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AitahRoute: AitahRoute,
   FirmastRoute: FirmastRoute,
-  ForgotPasswordRoute: ForgotPasswordRoute,
   KassaRoute: KassaRoute,
   KontaktRoute: KontaktRoute,
   KontoRoute: KontoRouteWithChildren,
   LoginRoute: LoginRoute,
   MuugitingimusedRoute: MuugitingimusedRoute,
   OstukorvRoute: OstukorvRoute,
+  ParooliUnustasinRoute: ParooliUnustasinRoute,
   PoodRoute: PoodRoute,
   UudisedRoute: UudisedRoute,
   ParoolUuestiTokenRoute: ParoolUuestiTokenRoute,

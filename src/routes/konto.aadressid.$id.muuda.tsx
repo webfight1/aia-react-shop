@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { AddressForm } from "@/components/shop/AddressForm";
 import { getAddress, updateAddress, AuthApiError, type CustomerAddress } from "@/lib/auth";
 
-export const Route = createFileRoute("/konto/aadressid/$id")({
+export const Route = createFileRoute("/konto/aadressid/$id/muuda")({
   component: EditAddressPage,
 });
 

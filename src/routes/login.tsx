@@ -114,7 +114,7 @@ function LoginPage() {
                   {submitting && <Loader2 className="h-4 w-4 animate-spin" />} Logi sisse
                 </Button>
                 <div className="text-center text-sm">
-                  <Link to="/forgot-password" className="text-primary hover:underline">Unustasid parooli?</Link>
+                  <Link to="/parooli-unustasin" className="text-primary hover:underline">Unustasid parooli?</Link>
                 </div>
               </form>
             ) : (
