@@ -1,7 +1,20 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { getOrders } from "@/lib/auth";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Loader2, Undo2, AlertTriangle } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { getOrders, withdrawOrder } from "@/lib/auth";
 import { orderStatusLabel } from "@/lib/order-status";
 
 export const Route = createFileRoute("/konto/tellimused/")({
@@ -10,6 +23,10 @@ export const Route = createFileRoute("/konto/tellimused/")({
 
 function OrdersListPage() {
   const [page, setPage] = useState(1);
+  const queryClient = useQueryClient();
+  const [withdrawId, setWithdrawId] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
   const { data, isLoading } = useQuery({
     queryKey: ["konto", "orders", page],
     queryFn: () => getOrders(page, 20),
@@ -17,6 +34,21 @@ function OrdersListPage() {
 
   const orders = data?.data ?? [];
   const meta = data?.meta;
+
+  const onWithdraw = async () => {
+    if (!withdrawId) return;
+    setBusy(true);
+    try {
+      await withdrawOrder(withdrawId);
+      toast.success("Tellimusest taganetud. Saatsime poele teate.");
+      queryClient.invalidateQueries({ queryKey: ["konto", "orders"] });
+      setWithdrawId(null);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Taganemine ebaõnnestus");
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -38,23 +70,37 @@ function OrdersListPage() {
               </tr>
             </thead>
             <tbody>
-              {orders.map((o) => (
-                <tr key={o.id} className="border-t border-border hover:bg-accent/30">
-                  <td className="px-4 py-3 font-medium">#{o.increment_id}</td>
-                  <td className="px-4 py-3">{new Date(o.created_at).toLocaleDateString("et-EE")}</td>
-                  <td className="px-4 py-3"><StatusBadge status={o.status} /></td>
-                  <td className="px-4 py-3 text-right tabular-nums font-semibold">
-                    {o.formatted_grand_total ?? `${Number(o.grand_total).toFixed(2)} €`}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <Link
-                      to="/konto/tellimused/$id"
-                      params={{ id: String(o.id) }}
-                      className="text-primary hover:underline"
-                    >Vaata</Link>
-                  </td>
-                </tr>
-              ))}
+              {orders.map((o) => {
+                const canWithdraw = !["withdrawn", "canceled", "closed"].includes(o.status);
+                return (
+                  <tr key={o.id} className="border-t border-border hover:bg-accent/30">
+                    <td className="px-4 py-3 font-medium">#{o.increment_id}</td>
+                    <td className="px-4 py-3">{new Date(o.created_at).toLocaleDateString("et-EE")}</td>
+                    <td className="px-4 py-3"><StatusBadge status={o.status} /></td>
+                    <td className="px-4 py-3 text-right tabular-nums font-semibold">
+                      {o.formatted_grand_total ?? `${Number(o.grand_total).toFixed(2)} €`}
+                    </td>
+                    <td className="px-4 py-3 text-right whitespace-nowrap">
+                      <div className="inline-flex items-center gap-3">
+                        {canWithdraw && (
+                          <button
+                            type="button"
+                            onClick={() => setWithdrawId(String(o.id))}
+                            className="inline-flex items-center gap-1 text-xs text-red-700 hover:text-red-800 hover:underline"
+                          >
+                            <Undo2 className="h-3.5 w-3.5" /> Tagane
+                          </button>
+                        )}
+                        <Link
+                          to="/konto/tellimused/$id"
+                          params={{ id: String(o.id) }}
+                          className="text-primary hover:underline"
+                        >Vaata</Link>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}
@@ -75,6 +121,32 @@ function OrdersListPage() {
           >Järgmine</button>
         </div>
       )}
+
+      <AlertDialog open={withdrawId !== null} onOpenChange={(o) => !o && setWithdrawId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-500" /> Kas oled kindel?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              EL-i seaduse alusel on sul õigus 14 päeva jooksul ostust taganeda.
+              Pärast kinnitamist saadame poeomanikule teate ja tellimuse staatus muutub
+              <strong> "Taganetud"</strong>.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busy}>Tühista</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); onWithdraw(); }}
+              disabled={busy}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {busy && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
+              Jah, tagane
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
