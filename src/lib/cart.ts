@@ -405,7 +405,7 @@ export function detectParcelCarrier(method: string): ParcelCarrier | null {
 }
 
 export async function getPaymentMethods(): Promise<PaymentMethod[]> {
-  const res = await cartApi("/checkout/payment-methods", { method: "GET" });
+  const res = await checkoutApi(CHECKOUT_PATHS.paymentMethods, { method: "GET" });
   const d = res.data as { payment_methods?: { payment_methods?: PaymentMethod[] } | PaymentMethod[] } | undefined;
   const pm = d?.payment_methods;
   if (Array.isArray(pm)) return pm;
@@ -413,7 +413,7 @@ export async function getPaymentMethods(): Promise<PaymentMethod[]> {
 }
 
 export async function savePaymentMethod(method: string) {
-  const res = await cartApi("/checkout/payment-method", {
+  const res = await checkoutApi(CHECKOUT_PATHS.savePayment, {
     method: "POST",
     body: JSON.stringify({ payment: { method } }),
   });
@@ -426,7 +426,7 @@ export interface PlaceOrderResult {
 }
 
 export async function placeOrder(): Promise<PlaceOrderResult> {
-  const res = await cartApi("/checkout/place-order", {
+  const res = await checkoutApi(CHECKOUT_PATHS.placeOrder, {
     method: "POST",
     body: JSON.stringify({}),
   });
