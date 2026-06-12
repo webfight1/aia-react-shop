@@ -40,6 +40,8 @@ interface ApiProductDetail {
   url_key: string;
   price: string;
   formatted_price?: string;
+  regular_price?: string | number | null;
+  special_price?: string | number | null;
   short_description?: string | null;
   description?: string | null;
   in_stock?: boolean;
