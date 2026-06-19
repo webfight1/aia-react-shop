@@ -102,12 +102,10 @@ function CartPage() {
                   <span className="text-muted-foreground">Vahesumma</span>
                   <span className="tabular-nums">{sub.toFixed(2).replace(".", ",")} €</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Saatekulu</span>
-                  <span className="tabular-nums">{SHIPPING.toFixed(2).replace(".", ",")} €</span>
-                </div>
+                <p className="text-[11px] text-muted-foreground">Saatekulu lisandub kassas.</p>
                 <div className="border-t border-border pt-3 flex justify-between">
                   <span className="font-semibold">Kokku</span>
+
                   <span className="text-lg font-bold tabular-nums">{total.toFixed(2).replace(".", ",")} €</span>
                 </div>
                 <Button asChild className="w-full rounded-lg">
