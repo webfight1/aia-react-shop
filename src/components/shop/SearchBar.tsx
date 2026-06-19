@@ -75,7 +75,7 @@ export function SearchBar({ className }: SearchBarProps = {}) {
   }
 
   return (
-    <div ref={containerRef} className="relative flex-1 max-w-xl hidden md:block">
+    <div ref={containerRef} className={cn("relative flex-1 max-w-xl", className || "hidden md:block")}>
       <form
         onSubmit={(e) => {
           e.preventDefault();
