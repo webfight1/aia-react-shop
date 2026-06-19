@@ -91,13 +91,25 @@ export interface BagistoCart {
 }
 
 export interface CartResponse {
-  data?: {
+  // Guest endpoints wrap cart under data.cart; customer endpoints return
+  // the cart object directly as `data` (with items at data.items).
+  data?: (BagistoCart & { cart_token?: string; cart?: BagistoCart | null }) | {
     cart_token?: string;
     cart?: BagistoCart | null;
   };
   message?: string;
   errors?: Record<string, string[]>;
 }
+
+function unwrapCart(res: CartResponse): BagistoCart | null {
+  const d = res.data as (BagistoCart & { cart?: BagistoCart | null }) | undefined;
+  if (!d) return null;
+  if (d.cart !== undefined) return d.cart ?? null;
+  // Customer-endpoint shape: data IS the cart (has items[]).
+  if (Array.isArray((d as BagistoCart).items)) return d as BagistoCart;
+  return null;
+}
+
 
 export class CartApiError extends Error {
   status: number;
