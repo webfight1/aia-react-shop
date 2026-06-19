@@ -42,6 +42,7 @@ export function Header({
   const cartTotal = cartTotalProp ?? (Number(subtotal) || 0);
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
+  const { user, isAuthenticated, isReady, logout } = useAuth();
 
   const { data: categories = [] } = useQuery({
     queryKey: ["categories"],
