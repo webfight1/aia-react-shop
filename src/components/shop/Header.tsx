@@ -27,9 +27,9 @@ interface HeaderProps {
 const staticItems: { label: string; to?: string }[] = [
   { label: "Müügitingimused", to: "/muugitingimused" },
   { label: "Uudised", to: "/uudised" },
-  { label: "Abikäsi", to: "/abikäsi" },
+  { label: "Abikäsi" },
   { label: "Kontakt", to: "/kontakt" },
-  { label: "Kasvatajatele", to: "/kasvatajatele" },
+  { label: "Kasvatajatele" },
 ];
 
 export function Header({
