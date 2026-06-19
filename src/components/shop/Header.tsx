@@ -50,9 +50,13 @@ export function Header({
 
   const tree = buildTree(categories);
 
-  const go = (to: string) => {
+  const go = (to: string | Parameters<typeof navigate>[0]) => {
     setMobileOpen(false);
-    navigate({ to });
+    if (typeof to === "string") {
+      navigate({ to });
+    } else {
+      navigate(to);
+    }
   };
 
   return (
