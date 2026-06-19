@@ -78,7 +78,7 @@ export function Header({
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold">
             a
           </div>
-          <span className="text-lg font-semibold tracking-tight text-foreground hidden sm:inline">
+          <span className="text-lg font-semibold tracking-tight text-foreground">
             aiamaailm<span className="text-primary">.ee</span>
           </span>
         </a>
@@ -89,9 +89,16 @@ export function Header({
           <AccountMenu />
           <a
             href="/ostukorv"
-            className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 shadow-sm hover:bg-accent transition-colors"
+            className="relative flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 shadow-sm hover:bg-accent transition-colors"
           >
-            <ShoppingCart className="h-4 w-4 text-primary" />
+            <div className="relative">
+              <ShoppingCart className="h-4 w-4 text-primary" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground ring-2 ring-background">
+                  {cartCount > 9 ? "9+" : cartCount}
+                </span>
+              )}
+            </div>
             <div className="text-xs leading-tight hidden sm:block">
               <div className="text-muted-foreground">Tellimus:</div>
               <div className="font-semibold text-foreground">
