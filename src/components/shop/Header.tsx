@@ -9,7 +9,7 @@ interface HeaderProps {
   cartTotal?: number;
 }
 
-const SHIPPING = 1.79;
+
 
 export function Header({ cartCount: cartCountProp, cartTotal: cartTotalProp }: HeaderProps = {}) {
   const { itemsCount, subtotal } = useCart();
