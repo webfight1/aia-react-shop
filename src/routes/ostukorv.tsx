@@ -58,8 +58,17 @@ function CartPage() {
                        <li key={item.id} className="flex items-center gap-4 p-4">
                         {img && <img src={img} alt={item.name} className="h-16 w-16 rounded-md object-cover ring-1 ring-border hidden landscape:block" />}
                         <div className="flex-1 min-w-0">
-                          <div className="font-medium text-foreground truncate">{item.name}</div>
-                          <div className="text-xs text-muted-foreground">SKU: {item.sku}</div>
+                          {item.product?.url_key ? (
+                            <Link
+                              to="/toode/$urlKey"
+                              params={{ urlKey: item.product.url_key }}
+                              className="font-medium text-foreground truncate hover:underline"
+                            >
+                              {item.name}
+                            </Link>
+                          ) : (
+                            <div className="font-medium text-foreground truncate">{item.name}</div>
+                          )}
                         </div>
                         <div className="flex items-center gap-1 rounded-lg border border-border">
                           <button
