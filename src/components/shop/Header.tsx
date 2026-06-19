@@ -110,6 +110,48 @@ export function Header({
             <SheetTitle className="text-left text-base">Menüü</SheetTitle>
           </SheetHeader>
 
+          <div className="p-4 border-b border-border space-y-3 lg:hidden">
+            <SearchBar className="max-w-none" />
+            {!isReady ? (
+              <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                <LogIn className="h-4 w-4" /> Laen…
+              </span>
+            ) : !isAuthenticated ? (
+              <button
+                type="button"
+                onClick={() => go("/login")}
+                className="flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-primary transition-colors"
+              >
+                <LogIn className="h-4 w-4" /> Sisene
+              </button>
+            ) : (
+              <div className="flex flex-col gap-2">
+                <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                  <User className="h-4 w-4 text-primary" />
+                  {user?.first_name || user?.email}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => go("/konto")}
+                  className="text-left text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Minu konto
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await logout();
+                    setMobileOpen(false);
+                    navigate({ to: "/" });
+                  }}
+                  className="flex items-center gap-1.5 text-left text-sm text-destructive hover:text-destructive/80 transition-colors"
+                >
+                  <LogOut className="h-4 w-4" /> Logi välja
+                </button>
+              </div>
+            )}
+          </div>
+
           <div className="flex flex-col">
             <button
               type="button"
