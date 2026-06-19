@@ -4,7 +4,7 @@
 
 @custom-variant dark (&:is(.dark *));
 @custom-variant portrait (@media (orientation: portrait));
-@custom-variant landscape (@media (checks (orientation: landscape));
+@custom-variant landscape (@media (orientation: landscape));
 
 /*
  * Design system definition.
