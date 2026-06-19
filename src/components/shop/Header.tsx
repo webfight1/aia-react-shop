@@ -13,7 +13,7 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion";
-import { ShoppingCart, Menu, ChevronRight } from "lucide-react";
+import { ShoppingCart, Menu, ChevronRight, LogIn, User, LogOut } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 import { AccountMenu } from "@/components/shop/AccountMenu";
 import { SearchBar } from "@/components/shop/SearchBar";
