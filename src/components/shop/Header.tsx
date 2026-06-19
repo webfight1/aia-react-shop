@@ -78,7 +78,7 @@ export function Header({
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold">
             a
           </div>
-          <span className="text-lg font-semibold tracking-tight text-foreground hidden sm:inline">
+          <span className="text-lg font-semibold tracking-tight text-foreground">
             aiamaailm<span className="text-primary">.ee</span>
           </span>
         </a>
