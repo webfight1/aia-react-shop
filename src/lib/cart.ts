@@ -111,12 +111,15 @@ export class CartApiError extends Error {
 
 async function cartApi(path: string, options: RequestInit = {}): Promise<CartResponse> {
   const token = getToken();
+  const bearer = getAuthBearer();
   const headers: Record<string, string> = {
     Accept: "application/json",
     "Content-Type": "application/json",
     ...((options.headers as Record<string, string>) ?? {}),
   };
   if (token) headers["X-Cart-Token"] = token;
+  // Authenticated requests get customer-group-aware pricing from backend.
+  if (bearer) headers.Authorization = `Bearer ${bearer}`;
 
   const res = await fetch(`${API_BASE}/api/v1/guest${path}`, {
     ...options,
