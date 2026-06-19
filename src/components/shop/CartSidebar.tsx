@@ -11,9 +11,10 @@ interface Props {
   isRemoving?: boolean;
 }
 
-export function CartSidebar({ items, shipping, subtotal, onRemove, isRemoving }: Props) {
+export function CartSidebar({ items, subtotal, onRemove, isRemoving }: Props) {
   const sub = Number(subtotal) || 0;
-  const total = sub + (items.length ? shipping : 0);
+
+
 
   return (
     <aside className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
