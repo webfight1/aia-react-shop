@@ -18,12 +18,11 @@ export const Route = createFileRoute("/ostukorv")({
   component: CartPage,
 });
 
-const SHIPPING = 1.79;
-
 function CartPage() {
   const { items, subtotal, itemsCount, updateItem, removeItem, isUpdating, isRemoving, isLoading } = useCart();
   const sub = Number(subtotal) || 0;
-  const total = sub + (items.length ? SHIPPING : 0);
+  const total = sub;
+
 
   const change = async (id: number, qty: number) => {
     if (qty < 1) return;
