@@ -112,39 +112,51 @@ export class CartApiError extends Error {
 async function cartApi(path: string, options: RequestInit = {}): Promise<CartResponse> {
   const token = getToken();
   const bearer = getAuthBearer();
-  const headers: Record<string, string> = {
+
+  const baseHeaders = (): Record<string, string> => ({
     Accept: "application/json",
     "Content-Type": "application/json",
     ...((options.headers as Record<string, string>) ?? {}),
-  };
-  if (token) headers["X-Cart-Token"] = token;
-  // Authenticated requests get customer-group-aware pricing from backend.
-  if (bearer) headers.Authorization = `Bearer ${bearer}`;
-
-  const res = await fetch(`${API_BASE}/api/v1/guest${path}`, {
-    ...options,
-    headers,
   });
 
-  let json: CartResponse = {};
-  try {
-    json = (await res.json()) as CartResponse;
-  } catch {
-    /* empty body */
+  const callGuest = async (): Promise<{ res: Response; json: CartResponse }> => {
+    const headers = baseHeaders();
+    if (token) headers["X-Cart-Token"] = token;
+    const res = await fetch(`${API_BASE}/api/v1/guest${path}`, { ...options, headers });
+    let json: CartResponse = {};
+    try { json = (await res.json()) as CartResponse; } catch { /* empty */ }
+    const newToken = json?.data?.cart_token;
+    if (newToken) setToken(newToken);
+    return { res, json };
+  };
+
+  // Logged-in customers: use customer endpoint so backend applies
+  // customer-group pricing rules. Fall back to guest on 401/404.
+  if (bearer) {
+    const headers = baseHeaders();
+    headers.Authorization = `Bearer ${bearer}`;
+    if (token) headers["X-Cart-Token"] = token;
+    const res = await fetch(`${API_BASE}/api/v1/customer${path}`, { ...options, headers });
+    let json: CartResponse = {};
+    try { json = (await res.json()) as CartResponse; } catch { /* empty */ }
+    if (res.ok) {
+      const newToken = json?.data?.cart_token;
+      if (newToken) setToken(newToken);
+      return json;
+    }
+    if (res.status !== 401 && res.status !== 404) {
+      throw new CartApiError(json?.message ?? `Cart request failed (${res.status})`, res.status, json?.errors);
+    }
+    // fall through to guest
   }
 
-  const newToken = json?.data?.cart_token;
-  if (newToken) setToken(newToken);
-
+  const { res, json } = await callGuest();
   if (!res.ok) {
-    throw new CartApiError(
-      json?.message ?? `Cart request failed (${res.status})`,
-      res.status,
-      json?.errors,
-    );
+    throw new CartApiError(json?.message ?? `Cart request failed (${res.status})`, res.status, json?.errors);
   }
   return json;
 }
+
 
 export async function getCart(): Promise<BagistoCart | null> {
   // No token yet → empty cart, don't call server.
