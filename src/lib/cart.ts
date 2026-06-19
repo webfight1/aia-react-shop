@@ -109,9 +109,14 @@ export class CartApiError extends Error {
   }
 }
 
-async function cartApi(path: string, options: RequestInit = {}): Promise<CartResponse> {
+async function cartApi(
+  path: string | { guest: string; customer: string },
+  options: RequestInit = {},
+): Promise<CartResponse> {
   const token = getToken();
   const bearer = getAuthBearer();
+  const guestPath = typeof path === "string" ? path : path.guest;
+  const customerPath = typeof path === "string" ? path : path.customer;
 
   const baseHeaders = (): Record<string, string> => ({
     Accept: "application/json",
@@ -125,7 +130,7 @@ async function cartApi(path: string, options: RequestInit = {}): Promise<CartRes
     // Pass Bearer to guest endpoint too so backend can resolve customer
     // group for pricing rules when customer endpoints aren't available.
     if (bearer) headers.Authorization = `Bearer ${bearer}`;
-    const res = await fetch(`${API_BASE}/api/v1/guest${path}`, { ...options, headers });
+    const res = await fetch(`${API_BASE}/api/v1/guest${guestPath}`, { ...options, headers });
     let json: CartResponse = {};
     try { json = (await res.json()) as CartResponse; } catch { /* empty */ }
     const newToken = json?.data?.cart_token;
@@ -134,13 +139,12 @@ async function cartApi(path: string, options: RequestInit = {}): Promise<CartRes
   };
 
   // Logged-in customers: try customer endpoint first so backend applies
-  // customer-group pricing rules. This Bagisto build may not expose all
-  // customer cart endpoints (404/500) — fall back to guest with Bearer.
+  // customer-group pricing rules.
   if (bearer) {
     const headers = baseHeaders();
     headers.Authorization = `Bearer ${bearer}`;
     if (token) headers["X-Cart-Token"] = token;
-    const res = await fetch(`${API_BASE}/api/v1/customer${path}`, { ...options, headers });
+    const res = await fetch(`${API_BASE}/api/v1/customer${customerPath}`, { ...options, headers });
     let json: CartResponse = {};
     try { json = (await res.json()) as CartResponse; } catch { /* empty */ }
     if (res.ok) {
@@ -166,29 +170,41 @@ async function cartApi(path: string, options: RequestInit = {}): Promise<CartRes
 
 export async function getCart(): Promise<BagistoCart | null> {
   // No token yet → empty cart, don't call server.
-  if (!getToken()) return null;
+  if (!getToken() && !getAuthBearer()) return null;
   const res = await cartApi("/cart", { method: "GET" });
   return res.data?.cart ?? null;
 }
 
 export async function addCartItem(productId: number | string, quantity = 1): Promise<BagistoCart | null> {
-  const res = await cartApi("/cart/items", {
-    method: "POST",
-    body: JSON.stringify({ product_id: Number(productId), quantity }),
-  });
+  const pid = Number(productId);
+  const res = await cartApi(
+    { guest: "/cart/items", customer: `/cart/add/${pid}` },
+    {
+      method: "POST",
+      // Guest endpoint requires product_id+quantity; customer /cart/add/{id} only needs quantity.
+      // Including product_id is harmless on the customer endpoint.
+      body: JSON.stringify({ product_id: pid, quantity }),
+    },
+  );
   return res.data?.cart ?? null;
 }
 
 export async function updateCartItem(cartItemId: number, quantity: number): Promise<BagistoCart | null> {
-  const res = await cartApi("/cart/items", {
-    method: "PUT",
-    body: JSON.stringify({ qty: { [cartItemId]: quantity } }),
-  });
+  const res = await cartApi(
+    { guest: "/cart/items", customer: "/cart/update" },
+    {
+      method: "PUT",
+      body: JSON.stringify({ qty: { [cartItemId]: quantity } }),
+    },
+  );
   return res.data?.cart ?? null;
 }
 
 export async function removeCartItem(cartItemId: number): Promise<BagistoCart | null> {
-  const res = await cartApi(`/cart/items/${cartItemId}`, { method: "DELETE" });
+  const res = await cartApi(
+    { guest: `/cart/items/${cartItemId}`, customer: `/cart/remove/${cartItemId}` },
+    { method: "DELETE" },
+  );
   return res.data?.cart ?? null;
 }
 
