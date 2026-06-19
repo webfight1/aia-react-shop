@@ -5,15 +5,17 @@ import { cartItemImage, type BagistoCartItem } from "@/lib/cart";
 
 interface Props {
   items: BagistoCartItem[];
-  shipping: number;
+  shipping?: number;
   subtotal: number;
   onRemove: (cartItemId: number) => void;
   isRemoving?: boolean;
 }
 
-export function CartSidebar({ items, shipping, subtotal, onRemove, isRemoving }: Props) {
+
+export function CartSidebar({ items, subtotal, onRemove, isRemoving }: Props) {
   const sub = Number(subtotal) || 0;
-  const total = sub + (items.length ? shipping : 0);
+
+
 
   return (
     <aside className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
@@ -88,11 +90,13 @@ export function CartSidebar({ items, shipping, subtotal, onRemove, isRemoving }:
 
       <div className="border-t border-border px-4 py-3 space-y-3 bg-secondary/30">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Kokku saatekuluga</span>
+          <span className="text-muted-foreground">Vahesumma</span>
           <span className="text-lg font-bold text-foreground tabular-nums">
-            {total.toFixed(2).replace(".", ",")} €
+            {sub.toFixed(2).replace(".", ",")} €
           </span>
         </div>
+        <p className="text-[11px] text-muted-foreground">Saatekulu lisandub kassas.</p>
+
         <div className="grid grid-cols-2 gap-2">
           <Button asChild variant="outline" size="sm" className="rounded-lg" disabled={!items.length}>
             <Link to="/ostukorv">Muuda</Link>

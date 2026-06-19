@@ -123,7 +123,7 @@ function CategoryPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header cartCount={cartCount} cartTotal={cartSubtotal + (cartItems.length ? SHIPPING : 0)} />
+      <Header cartCount={cartCount} cartTotal={cartSubtotal} />
       <Nav
         onSelectCategory={(slug, name) => setCategory({ slug, name })}
         selectedSlug={category.slug}
@@ -205,7 +205,7 @@ function CategoryPage() {
 
             {/* Right: sidebar */}
             <div className="space-y-6">
-              <CartSidebar items={cartItems} shipping={SHIPPING} subtotal={cartSubtotal} onRemove={removeFromCart} isRemoving={isRemoving} />
+              <CartSidebar items={cartItems} subtotal={cartSubtotal} onRemove={removeFromCart} isRemoving={isRemoving} />
               <SpecialOffer />
             </div>
           </div>

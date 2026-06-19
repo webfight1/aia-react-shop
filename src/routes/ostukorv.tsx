@@ -35,7 +35,7 @@ function CartPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header cartCount={itemsCount} cartTotal={total} />
+      <Header cartCount={itemsCount} cartTotal={sub} />
       <Nav />
       <main className="flex-1">
         <div className="mx-auto max-w-5xl px-4 md:px-6 py-8">
