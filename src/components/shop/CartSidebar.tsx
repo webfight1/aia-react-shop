@@ -5,11 +5,12 @@ import { cartItemImage, type BagistoCartItem } from "@/lib/cart";
 
 interface Props {
   items: BagistoCartItem[];
-  shipping: number;
+  shipping?: number;
   subtotal: number;
   onRemove: (cartItemId: number) => void;
   isRemoving?: boolean;
 }
+
 
 export function CartSidebar({ items, subtotal, onRemove, isRemoving }: Props) {
   const sub = Number(subtotal) || 0;
