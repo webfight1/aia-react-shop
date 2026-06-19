@@ -18,6 +18,7 @@ import { useCart } from "@/hooks/useCart";
 import { AccountMenu } from "@/components/shop/AccountMenu";
 import { SearchBar } from "@/components/shop/SearchBar";
 import { buildTree, fetchCategories } from "@/lib/categories";
+import { useAuth } from "@/hooks/useAuth";
 
 interface HeaderProps {
   cartCount?: number;
