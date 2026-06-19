@@ -1,5 +1,6 @@
 import { Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
 import { useNavigate } from "@tanstack/react-router";
 
 const API_BASE = "https://aiamaailm.webfight.shop";
