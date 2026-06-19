@@ -40,7 +40,7 @@ export function Nav({ onSelectCategory, selectedSlug }: Props) {
   const tree = buildTree(categories);
 
   return (
-    <nav className="border-b border-border bg-card">
+    <nav className="border-b border-border bg-card hidden lg:block">
       <div className="mx-auto max-w-7xl px-4 md:px-6">
         <ul className="flex flex-wrap items-center gap-1 text-sm">
           <li>
