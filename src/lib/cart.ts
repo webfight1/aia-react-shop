@@ -184,7 +184,7 @@ export async function getCart(): Promise<BagistoCart | null> {
   // No token yet → empty cart, don't call server.
   if (!getToken() && !getAuthBearer()) return null;
   const res = await cartApi("/cart", { method: "GET" });
-  return res.data?.cart ?? null;
+  return unwrapCart(res);
 }
 
 export async function addCartItem(productId: number | string, quantity = 1): Promise<BagistoCart | null> {
@@ -198,7 +198,7 @@ export async function addCartItem(productId: number | string, quantity = 1): Pro
       body: JSON.stringify({ product_id: pid, quantity }),
     },
   );
-  return res.data?.cart ?? null;
+  return unwrapCart(res);
 }
 
 export async function updateCartItem(cartItemId: number, quantity: number): Promise<BagistoCart | null> {
@@ -209,7 +209,7 @@ export async function updateCartItem(cartItemId: number, quantity: number): Prom
       body: JSON.stringify({ qty: { [cartItemId]: quantity } }),
     },
   );
-  return res.data?.cart ?? null;
+  return unwrapCart(res);
 }
 
 export async function removeCartItem(cartItemId: number): Promise<BagistoCart | null> {
@@ -217,7 +217,7 @@ export async function removeCartItem(cartItemId: number): Promise<BagistoCart | 
     { guest: `/cart/items/${cartItemId}`, customer: `/cart/remove/${cartItemId}` },
     { method: "DELETE" },
   );
-  return res.data?.cart ?? null;
+  return unwrapCart(res);
 }
 
 function pickImageUrl(img?: BagistoImage): string {
