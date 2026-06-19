@@ -1,5 +1,6 @@
 import { Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
 import { useNavigate } from "@tanstack/react-router";
 
 const API_BASE = "https://aiamaailm.webfight.shop";
@@ -14,7 +15,11 @@ interface SearchResult {
   image: string | null;
 }
 
-export function SearchBar() {
+interface SearchBarProps {
+  className?: string;
+}
+
+export function SearchBar({ className }: SearchBarProps = {}) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [open, setOpen] = useState(false);
@@ -70,7 +75,7 @@ export function SearchBar() {
   }
 
   return (
-    <div ref={containerRef} className="relative flex-1 max-w-xl hidden md:block">
+    <div ref={containerRef} className={cn("relative flex-1 max-w-xl", className || "hidden md:block")}>
       <form
         onSubmit={(e) => {
           e.preventDefault();
