@@ -122,6 +122,9 @@ async function cartApi(path: string, options: RequestInit = {}): Promise<CartRes
   const callGuest = async (): Promise<{ res: Response; json: CartResponse }> => {
     const headers = baseHeaders();
     if (token) headers["X-Cart-Token"] = token;
+    // Pass Bearer to guest endpoint too so backend can resolve customer
+    // group for pricing rules when customer endpoints aren't available.
+    if (bearer) headers.Authorization = `Bearer ${bearer}`;
     const res = await fetch(`${API_BASE}/api/v1/guest${path}`, { ...options, headers });
     let json: CartResponse = {};
     try { json = (await res.json()) as CartResponse; } catch { /* empty */ }
@@ -130,8 +133,9 @@ async function cartApi(path: string, options: RequestInit = {}): Promise<CartRes
     return { res, json };
   };
 
-  // Logged-in customers: use customer endpoint so backend applies
-  // customer-group pricing rules. Fall back to guest on 401/404.
+  // Logged-in customers: try customer endpoint first so backend applies
+  // customer-group pricing rules. This Bagisto build may not expose all
+  // customer cart endpoints (404/500) — fall back to guest with Bearer.
   if (bearer) {
     const headers = baseHeaders();
     headers.Authorization = `Bearer ${bearer}`;
@@ -144,7 +148,8 @@ async function cartApi(path: string, options: RequestInit = {}): Promise<CartRes
       if (newToken) setToken(newToken);
       return json;
     }
-    if (res.status !== 401 && res.status !== 404) {
+    // Fall back to guest on 401/404/500 (endpoint unsupported in this build).
+    if (res.status !== 401 && res.status !== 404 && res.status !== 500) {
       throw new CartApiError(json?.message ?? `Cart request failed (${res.status})`, res.status, json?.errors);
     }
     // fall through to guest
@@ -156,6 +161,7 @@ async function cartApi(path: string, options: RequestInit = {}): Promise<CartRes
   }
   return json;
 }
+
 
 
 export async function getCart(): Promise<BagistoCart | null> {
