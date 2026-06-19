@@ -91,13 +91,25 @@ export interface BagistoCart {
 }
 
 export interface CartResponse {
-  data?: {
+  // Guest endpoints wrap cart under data.cart; customer endpoints return
+  // the cart object directly as `data` (with items at data.items).
+  data?: (BagistoCart & { cart_token?: string; cart?: BagistoCart | null }) | {
     cart_token?: string;
     cart?: BagistoCart | null;
   };
   message?: string;
   errors?: Record<string, string[]>;
 }
+
+function unwrapCart(res: CartResponse): BagistoCart | null {
+  const d = res.data as (BagistoCart & { cart?: BagistoCart | null }) | undefined;
+  if (!d) return null;
+  if (d.cart !== undefined) return d.cart ?? null;
+  // Customer-endpoint shape: data IS the cart (has items[]).
+  if (Array.isArray((d as BagistoCart).items)) return d as BagistoCart;
+  return null;
+}
+
 
 export class CartApiError extends Error {
   status: number;
@@ -172,7 +184,7 @@ export async function getCart(): Promise<BagistoCart | null> {
   // No token yet → empty cart, don't call server.
   if (!getToken() && !getAuthBearer()) return null;
   const res = await cartApi("/cart", { method: "GET" });
-  return res.data?.cart ?? null;
+  return unwrapCart(res);
 }
 
 export async function addCartItem(productId: number | string, quantity = 1): Promise<BagistoCart | null> {
@@ -186,7 +198,7 @@ export async function addCartItem(productId: number | string, quantity = 1): Pro
       body: JSON.stringify({ product_id: pid, quantity }),
     },
   );
-  return res.data?.cart ?? null;
+  return unwrapCart(res);
 }
 
 export async function updateCartItem(cartItemId: number, quantity: number): Promise<BagistoCart | null> {
@@ -197,7 +209,7 @@ export async function updateCartItem(cartItemId: number, quantity: number): Prom
       body: JSON.stringify({ qty: { [cartItemId]: quantity } }),
     },
   );
-  return res.data?.cart ?? null;
+  return unwrapCart(res);
 }
 
 export async function removeCartItem(cartItemId: number): Promise<BagistoCart | null> {
@@ -205,7 +217,7 @@ export async function removeCartItem(cartItemId: number): Promise<BagistoCart | 
     { guest: `/cart/items/${cartItemId}`, customer: `/cart/remove/${cartItemId}` },
     { method: "DELETE" },
   );
-  return res.data?.cart ?? null;
+  return unwrapCart(res);
 }
 
 function pickImageUrl(img?: BagistoImage): string {
