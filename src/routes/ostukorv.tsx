@@ -55,8 +55,8 @@ function CartPage() {
                     const img = cartItemImage(item);
                     const itemTotal = Number(item.total) || 0;
                     return (
-                      <li key={item.id} className="flex items-center gap-4 p-4">
-                        {img && <img src={img} alt={item.name} className="h-16 w-16 rounded-md object-cover ring-1 ring-border" />}
+                       <li key={item.id} className="flex items-center gap-4 p-4">
+                        {img && <img src={img} alt={item.name} className="h-16 w-16 rounded-md object-cover ring-1 ring-border hidden landscape:block" />}
                         <div className="flex-1 min-w-0">
                           <div className="font-medium text-foreground truncate">{item.name}</div>
                           <div className="text-xs text-muted-foreground">SKU: {item.sku}</div>
